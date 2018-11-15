@@ -33,11 +33,12 @@ config_trojan(){
 yum -y install  wget unzip vim tcl expect expect-devel
 mkdir /usr/src/trojan
 cd /usr/src/trojan
-SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=example.com"
+#SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=example.com"
 /usr/bin/expect << EOF
 spawn openssl genrsa -des3 -out private.key 1024
 expect "Enter pass phrase for" {send "atrandys\r"}
 expect "Verifying - Enter pass phrase for" {send "atrandys\r"}
+spawn SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=example.com"
 spawn openssl req -new -subj $SUBJECT -key private.key -out private.csr
 expect "Enter pass phrase" {send "atrandys\r"}
 spawn openssl rsa -in private.origin.key -out private.key
