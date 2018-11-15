@@ -44,6 +44,13 @@ spawn openssl rsa -in private.key -out private.key
 expect "Enter pass phrase" {send "atrandys\r"}
 EOF
 
+mv private.key private.or.key
+
+/usr/bin/expect << EOF
+spawn openssl rsa -in private.or.key -out private.key
+expect "Enter pass phrase" {send "atrandys\r"}
+EOF
+
 openssl x509 -req -days 3650 -in private.csr -signkey private.key -out private.crt
 
 cat > /usr/src/trojan/server.conf <<-EOF
