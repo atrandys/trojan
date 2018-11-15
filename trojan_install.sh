@@ -33,24 +33,21 @@ config_trojan(){
 yum -y install  wget unzip vim tcl expect expect-devel
 mkdir /usr/src/trojan
 cd /usr/src/trojan
-#SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=example.com"
-/usr/bin/expect << EOF
-spawn openssl genrsa -des3 -out private.key 1024
-expect "Enter pass phrase for" {send "atrandys\r"}
-expect "Verifying - Enter pass phrase for" {send "atrandys\r"}
-spawn openssl req -new -subj "/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=example.com" -key private.key -out private.csr
-expect "Enter pass phrase" {send "atrandys\r"}
-spawn openssl rsa -in private.key -out private.key
-expect "Enter pass phrase" {send "atrandys\r"}
-EOF
-
+read -p "输入你的VPS绑定的域名：" domain
+SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=$domain"
+echo "============================"
+echo " 接下来需要设定密码，输入两次"
+echo "============================"
+openssl genrsa -des3 -out private.key 1024
+echo "============================"
+echo " 接下来需要输入刚设定的密码"
+echo "============================"
+openssl req -new -subj $SUBJECT -key private.key -out private.csr
+echo "============================"
+echo " 再次输入刚设定的密码"
+echo "============================"
 mv private.key private.or.key
-
-/usr/bin/expect << EOF
-spawn openssl rsa -in private.or.key -out private.key
-expect "Enter pass phrase" {send "atrandys\r"}
-EOF
-
+openssl rsa -in private.or.key -out private.key
 openssl x509 -req -days 3650 -in private.csr -signkey private.key -out private.crt
 
 cat > /usr/src/trojan/server.conf <<-EOF
