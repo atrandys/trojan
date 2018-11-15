@@ -40,7 +40,7 @@ expect "Enter pass phrase for" {send "atrandys\r"}
 expect "Verifying - Enter pass phrase for" {send "atrandys\r"}
 spawn openssl req -new -subj "/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=example.com" -key private.key -out private.csr
 expect "Enter pass phrase" {send "atrandys\r"}
-spawn openssl rsa -in private.origin.key -out private.key
+spawn openssl rsa -in private.key -out private.key
 expect "Enter pass phrase" {send "atrandys\r"}
 EOF
 
