@@ -18,6 +18,7 @@ install_docker(){
 	yum makecache fast
 	yum -y install docker-ce
 	systemctl start docker
+	systemctl enable docker
 
 }
 
