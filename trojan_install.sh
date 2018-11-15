@@ -36,7 +36,7 @@ cd /usr/src/trojan
 read -p "输入你的VPS绑定的域名：" domain
 SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=$domain"
 echo "============================"
-echo " 接下来需要设定密码，输入两次"
+echo " 接下来需要设定密码，输入两次（随意设置，5-10位）"
 echo "============================"
 openssl genrsa -des3 -out private.key 1024
 echo "============================"
@@ -58,8 +58,7 @@ cat > /usr/src/trojan/server.conf <<-EOF
     "remote_addr": "127.0.0.1",
     "remote_port": 80,
     "password": [
-        "password1",
-        "password2"
+        "password1"
     ],
     "log_level": 1,
     "ssl": {
@@ -95,12 +94,17 @@ cat > /usr/src/trojan/server.conf <<-EOF
 }
 EOF
 
+echo "============================"
+echo " 设置验证密码，服务端和客户端使用相同密码"
+echo "============================"
+read -p "设置密码：" mypassword
+sed -i "s/password1/$mypassword/" /usr/src/trojan/server.conf
+
 }
 
 start_docker(){
 
 	docker run --name trojan --restart=always -d -p 80:80 -p 443:443 -v /usr/src/trojan:/usr/src/trojan  atrandys/trojan sh -c "/etc/init.d/nginx start && trojan -c /usr/src/trojan/server.conf"
-
 }
 
 clear
