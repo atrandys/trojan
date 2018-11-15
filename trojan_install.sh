@@ -42,8 +42,9 @@ spawn openssl req -new -subj $SUBJECT -key private.key -out private.csr
 expect "Enter pass phrase" {send "atrandys\r"}
 spawn openssl rsa -in private.origin.key -out private.key
 expect "Enter pass phrase" {send "atrandys\r"}
-spawn openssl x509 -req -days 3650 -in private.csr -signkey private.key -out private.crt
 EOF
+
+openssl x509 -req -days 3650 -in private.csr -signkey private.key -out private.crt
 
 cat > /usr/src/trojan/server.conf <<-EOF
 {
