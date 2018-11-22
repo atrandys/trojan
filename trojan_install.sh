@@ -31,6 +31,7 @@ config_website(){
 
 uninstall_trojan(){
 	docker update --restart=no trojan
+	docker stop trojan
 	docker rm trojan
 	rm -rf /usr/src/trojan/
 	echo "================="
