@@ -29,6 +29,15 @@ config_website(){
 
 }
 
+uninstall_trojan(){
+	docker update --restart=no trojan
+	docker rm trojan
+	rm -rf /usr/src/trojan/
+	echo "================="
+	echo "    卸载完成"
+	echo "================="
+}
+
 config_trojan(){
 
 yum -y install  wget unzip vim tcl expect expect-devel
@@ -106,19 +115,42 @@ sed -i "s/password1/$mypassword/" /usr/src/trojan/server.conf
 start_docker(){
 
 	docker run --name trojan --restart=always -d -p 80:80 -p 443:443 -v /usr/src/trojan:/usr/src/trojan  atrandys/trojan sh -c "/etc/init.d/nginx start && trojan -c /usr/src/trojan/server.conf"
+	echo "============================"
+	echo "       trojan启动完成"
+	echo "============================"
 }
 
-clear
-echo "========================="
-echo " 介绍：适用于CentOS7"
-echo " 作者：atrandys"
-echo " 网站：www.atrandys.com"
-echo " Youtube：atrandys"
-echo "========================="
-echo
-read -p "按任意键开始安装，按ctrl+c退出脚本"
-install_docker
-config_trojan
-config_website
-start_docker
-
+start_menu(){
+    clear
+    echo "========================="
+    echo " 介绍：适用于CentOS7"
+    echo " 作者：atrandys"
+    echo " 网站：www.atrandys.com"
+    echo " Youtube：atrandys"
+    echo "========================="
+    echo "1. 安装Trojan"
+    echo "2. 卸载Trojan"
+    echo "3. 退出"
+    echo
+    read -p "请输入数字:" num
+    case "$num" in
+    	1)
+	install_docker
+	config_trojan
+	config_website
+	start_docker
+	;;
+	2)
+	uninstall_trojan
+	;;
+	3)
+	exit 1
+	;;
+	*)
+	clear
+	echo "请输入正确数字"
+	sleep 5s
+	start_menu
+	;;
+    esac
+}
