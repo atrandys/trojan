@@ -24,7 +24,7 @@ install_docker(){
 
 config_website(){
 
-	wget https://github.com/atrandys/trojan/raw/master/index.zip /usr/src/trojan
+	wget https://github.com/atrandys/trojan/raw/master/index.zip /usr/src/trojan/web
 	unzip index.zip
 
 }
@@ -43,6 +43,7 @@ config_trojan(){
 
 yum -y install  wget unzip vim tcl expect expect-devel
 mkdir /usr/src/trojan
+mkdir /usr/src/trojan/web
 cd /usr/src/trojan
 read -p "输入你的VPS绑定的域名：" domain
 SUBJECT="/C=US/ST=Mars/L=iTranswarp/O=iTranswarp/OU=iTranswarp/CN=$domain"
