@@ -16,6 +16,7 @@ function yellow(){
 systemctl stop ufw
 systemctl disable ufw
 
+sudo apt-get install -y software-properties-common
 sudo add-apt-repository -y ppa:greaterfire/trojan
 sudo apt-get -y update
 sudo apt-get -y install unzip wget trojan
