@@ -13,6 +13,9 @@ function yellow(){
     echo -e "\033[33m\033[01m $1 \033[0m"
 }
 
+systemctl stop ufw
+systemctl disable ufw
+
 sudo add-apt-repository -y ppa:greaterfire/trojan
 sudo apt-get -y update
 sudo apt-get -y install unzip wget trojan
