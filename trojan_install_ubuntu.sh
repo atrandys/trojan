@@ -148,8 +148,8 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl start trojan
-systemctl enable trojan
+systemctl start trojan.service
+systemctl enable trojan.service
 
 green "===============安装OK==============="
 green " 密码：$mypassword"
