@@ -72,6 +72,7 @@ systemctl start nginx.service
 
 curl https://get.acme.sh | sh
 ~/.acme.sh/acme.sh  --issue  -d $domain  --webroot /usr/share/nginx/html/
+
 ~/.acme.sh/acme.sh  --installcert  -d  $domain   \
         --key-file   /etc/nginx/ssl/$domain.key \
         --fullchain-file /etc/nginx/ssl/fullchain.cer \
@@ -129,6 +130,7 @@ mypassword=$(cat /dev/urandom | head -1 | md5sum | head -c 4)
 sed -i "s/password1/$mypassword/" /etc/trojan/server.conf
 
 rm -f /usr/share/nginx/html/*
+cd /usr/share/nginx/html
 wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
 unzip web.zip
 systemctl restart nginx.service
