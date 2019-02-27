@@ -170,21 +170,23 @@ wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
 unzip web.zip
 systemctl restart nginx.service
 systemctl enable nginx.service
-cat > /etc/systemd/system/trojan.service <<-EOF
-[Unit]
-Description=trojan
-After=syslog.target network.target remote-fs.target nss-lookup.target
- 
-[Service]
-Type=forking
-ExecStart=/usr/bin/trojan -c /etc/trojan/server.conf
-Restart=always
- 
-[Install]
-WantedBy=multi-user.target
+sudo cat > /etc/init.d/trojanstart <<-EOF
+#! /bin/bash
+### BEGIN INIT INFO
+# Provides:		trojanstart
+# Required-Start:	$remote_fs $syslog
+# Required-Stop:    $remote_fs $syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	trojanstart
+### END INIT INFO
+nohup trojan -c /etc/trojan/server.conf > /etc/trojan/info.log 2>&1 &
 EOF
-systemctl start trojan.service
-systemctl enable trojan.service
+
+sudo chmod +x /etc/init.d/trojanstart
+sudo update-rc.d trojanstart defaults
+
+nohup trojan -c /etc/trojan/server.conf > /etc/trojan/info.log 2>&1 &
 
 green "===============安装OK==============="
 green " 证书文件：/etc/nginx/ssl/fullchain.cer"
