@@ -25,7 +25,7 @@ green " 输入解析到此VPS的域名"
 green "======================"
 read domain
 
-cat > /etc/nginx/conf/nginx.conf <<-EOF
+cat > /etc/nginx/nginx.conf <<-EOF
 user  root;
 worker_processes  1;
 error_log /var/log/nginx/error.log;
