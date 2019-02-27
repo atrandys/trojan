@@ -57,10 +57,9 @@ cat > /etc/nginx/conf.d/default.conf<<-EOF
 server {
     listen       80;
     server_name  $domain;
-    root /usr/share/nginx/html;
-    index index.php index.html index.htm;
     location / {
-        try_files \$uri \$uri/ /index.php?\$args;
+        root /usr/share/nginx/html;
+        index index.php index.html index.htm;
     }
     error_page   500 502 503 504  /50x.html;
     location = /50x.html {
