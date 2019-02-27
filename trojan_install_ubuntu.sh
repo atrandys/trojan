@@ -68,7 +68,7 @@ server {
 }
 EOF
 
-systemctl start nginx.service
+systemctl restart nginx.service
 
 curl https://get.acme.sh | sh
 ~/.acme.sh/acme.sh  --issue  -d $domain  --webroot /usr/share/nginx/html/
@@ -96,7 +96,7 @@ cat > /etc/trojan/server.conf <<-EOF
         "cert": "/etc/nginx/ssl/fullchain.cer",
         "key": "/etc/nginx/ssl/$domain.key",
         "key_password": "",
-        "cipher": "TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256:EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+ECDSA+AES128:EECDH+aRSA+AES128:RSA+AES128:EECDH+ECDSA+AES256:EECDH+aRSA+AES256:RSA+AES256:EECDH+ECDSA+3DES:EECDH+aRSA+3DES:RSA+3DES:!MD5",
+        "cipher": "TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256",
         "prefer_server_cipher": true,
         "alpn": [
             "h2",
@@ -126,8 +126,43 @@ cat > /etc/trojan/server.conf <<-EOF
 }
 EOF
 
+cat > /etc/nginx/ssl/config.json <<-EOF
+{
+    "run_type": "client",
+    "local_addr": "127.0.0.1",
+    "local_port": 1080,
+    "remote_addr": "$domain",
+    "remote_port": 443,
+    "password": [
+        "password1"
+    ],
+    "append_payload": true,
+    "log_level": 1,
+    "ssl": {
+        "verify": true,
+        "verify_hostname": true,
+        "cert": "",
+        "cipher": "TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256",
+        "sni": "",
+        "alpn": [
+            "h2",
+            "http/1.1"
+        ],
+        "reuse_session": true,
+        "session_ticket": false,
+        "curves": ""
+    },
+    "tcp": {
+        "no_delay": true,
+        "keep_alive": true,
+        "fast_open": false,
+        "fast_open_qlen": 20
+    }
+}
+EOF
 mypassword=$(cat /dev/urandom | head -1 | md5sum | head -c 4)
 sed -i "s/password1/$mypassword/" /etc/trojan/server.conf
+sed -i "s/password1/$mypassword/" /etc/nginx/ssl/config.json
 
 rm -f /usr/share/nginx/html/*
 cd /usr/share/nginx/html
@@ -152,5 +187,6 @@ systemctl start trojan.service
 systemctl enable trojan.service
 
 green "===============安装OK==============="
-green " 密码：$mypassword"
-green " 证书：/etc/nginx/ssl/fullchain.cer"
+green " 证书文件：/etc/nginx/ssl/fullchain.cer"
+green " 客户端配置：/etc/nginx/ssl/config.json"
+green " 将以上两个文件传输到客户端trojan文件夹"
