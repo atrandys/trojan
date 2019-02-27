@@ -142,7 +142,7 @@ cat > /etc/nginx/ssl/config.json <<-EOF
     "ssl": {
         "verify": true,
         "verify_hostname": true,
-        "cert": "",
+        "cert": "fullchain.cer",
         "cipher": "TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:TLS13-AES-128-GCM-SHA256:TLS13-AES-128-CCM-8-SHA256:TLS13-AES-128-CCM-SHA256",
         "sni": "",
         "alpn": [
