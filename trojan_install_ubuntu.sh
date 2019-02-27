@@ -134,8 +134,22 @@ cd /usr/share/nginx/html
 wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
 unzip web.zip
 systemctl restart nginx.service
-
-trojan -c /etc/trojan/server.conf 
+systemctl enable nginx.service
+cat > /etc/systemd/system/trojan.service <<-EOF
+[Unit]
+Description=trojan
+After=syslog.target network.target remote-fs.target nss-lookup.target
+ 
+[Service]
+Type=forking
+ExecStart=/usr/bin/trojan -c /etc/trojan/server.conf
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl start trojan
+systemctl enable trojan
 
 green "===============安装OK==============="
 green " 密码：$mypassword"
