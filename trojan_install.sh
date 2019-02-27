@@ -117,6 +117,9 @@ sed -i "s/password1/$mypassword/" /usr/src/trojan/server.conf
 
 start_docker(){
 
+        sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
+	sudo firewall-cmd --zone=public --add-port=443/tcp --permanent
+	sudo firewall-cmd --reload
 	docker run --name trojan --restart=always -d -p 80:80 -p 443:443 -v /usr/src/trojan:/usr/src/trojan  atrandys/trojan sh -c "/etc/init.d/nginx start && trojan -c /usr/src/trojan/server.conf"
 	echo "============================"
 	echo "       trojan启动完成"
