@@ -28,7 +28,6 @@ read domain
 cat > /etc/nginx/conf/nginx.conf <<-EOF
 user  root;
 worker_processes  1;
-access_log /var/log/nginx/access.log;
 error_log /var/log/nginx/error.log;
 pid /run/nginx.pid;
 events {
@@ -40,7 +39,7 @@ http {
     log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
                       '\$status \$body_bytes_sent "\$http_referer" '
                       '"\$http_user_agent" "\$http_x_forwarded_for"';
-    access_log  /etc/nginx/logs/access.log  main;
+    access_log  /var/log/nginx/access.log  main;
     sendfile        on;
     #tcp_nopush     on;
     keepalive_timeout  120;
@@ -78,7 +77,7 @@ curl https://get.acme.sh | sh
 cd /etc/trojan/
 rm -f /etc/trojan/config.json
 
-cat > /usr/src/trojan/server.conf <<-EOF
+cat > /etc/trojan/server.conf <<-EOF
 {
     "run_type": "server",
     "local_addr": "0.0.0.0",
