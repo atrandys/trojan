@@ -33,7 +33,7 @@ exit
 fi
 
 
-yum -y install bind-utils wget unzip curl
+yum -y install bind-utils wget unzip zip curl
 green "======================="
 yellow "请输入绑定到本VPS的域名"
 green "======================="
@@ -44,6 +44,7 @@ if [ $real_addr == $local_addr ] ; then
 	green "=========================================="
 	green "域名解析正常，开启安装nginx并申请https证书"
 	green "=========================================="
+	sleep 1
 	rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
     	yum install -y nginx
 	systemctl enable nginx.service
@@ -68,6 +69,7 @@ if [ $real_addr == $local_addr ] ; then
 	wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
 	unzip trojan-cli.zip
 	cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
+	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
 	cat > /usr/src/trojan-cli/config.json <<-EOF
 {
     "run_type": "client",
@@ -76,7 +78,7 @@ if [ $real_addr == $local_addr ] ; then
     "remote_addr": "$your_domain",
     "remote_port": 443,
     "password": [
-        "hi_atrandys"
+        "$trojan_passwd"
     ],
     "log_level": 1,
     "ssl": {
@@ -145,6 +147,8 @@ EOF
     }
 }
 EOF
+	zip -q -r trojan-cli.zip /usr/src/trojan-cli/
+	mv /usr/src/trojan-cli.zip /usr/share/nginx/html/
 	#增加启动脚本
 	
 	cat > /usr/lib/systemd/system/trojan.service <<-EOF
