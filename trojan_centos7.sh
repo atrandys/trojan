@@ -148,7 +148,9 @@ EOF
 }
 EOF
 	zip -q -r trojan-cli.zip /usr/src/trojan-cli/
-	mv /usr/src/trojan-cli.zip /usr/share/nginx/html/
+	trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
+	mkdir /usr/share/nginx/html/$trojan_path
+	mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/trojan/
 	#增加启动脚本
 	
 	cat > /usr/lib/systemd/system/trojan.service <<-EOF
@@ -171,11 +173,10 @@ EOF
 	chmod +x /usr/lib/systemd/system/trojan.service
 	systemctl start trojan.service
 	systemctl enable trojan.service
-	green "============================================="
+	green "======================================================================"
 	green "Trojan已安装完成，请使用以下链接下载trojan客户端"
-	green "http://${your_domain}/trojan-cli.zip"
-	green "安装完成请立即下载并存档，1个小时后将自动删除"
-	green "============================================="
+	green "http://${your_domain}/$trojan-path/trojan-cli.zip"
+	green "======================================================================"
 else
 	red "================================"
 	red "域名解析地址与本VPS IP地址不一致"
