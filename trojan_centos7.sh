@@ -147,7 +147,7 @@ EOF
     }
 }
 EOF
-	zip -q -r trojan-cli.zip /usr/src/trojan-cli/
+	zip -q -r /usr/src/trojan-cli/trojan-cli.zip /usr/src/trojan-cli/
 	trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
 	mkdir /usr/share/nginx/html/$trojan_path
 	mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/trojan/
