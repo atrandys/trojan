@@ -32,7 +32,8 @@ red "==============="
 exit
 fi
 
-
+systemctl stop firewalld
+systemctl disable firewalld
 yum -y install bind-utils wget unzip zip curl
 green "======================="
 yellow "请输入绑定到本VPS的域名"
