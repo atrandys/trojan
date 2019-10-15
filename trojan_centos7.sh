@@ -112,7 +112,7 @@ EOF
     "remote_addr": "127.0.0.1",
     "remote_port": 80,
     "password": [
-        "hi_atrandys"
+        "$trojan_passwd"
     ],
     "log_level": 1,
     "ssl": {
