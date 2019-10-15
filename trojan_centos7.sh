@@ -62,7 +62,8 @@ if [ $real_addr == $local_addr ] ; then
         --key-file   /usr/src/trojan-cert/private.key \
         --fullchain-file /usr/src/trojan-cert/fullchain.cer \
         --reloadcmd  "systemctl force-reload  nginx.service"
-	cd /usr/src
+	if test -s /usr/src/trojan-cert/fullchain.cer; then
+        cd /usr/src
 	wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
 	tar xf trojan-1.*
 	#下载trojan客户端
@@ -182,6 +183,12 @@ EOF
 	green "3、打开stop.bat即关闭Trojan客户端"
 	green "4、Trojan客户端需要搭配浏览器插件使用，例如switchyomega等"
 	green "======================================================================"
+	else
+        red "================================"
+	red "https证书没有申请成果，本次安装失败"
+	red "================================"
+	fi
+	
 else
 	red "================================"
 	red "域名解析地址与本VPS IP地址不一致"
