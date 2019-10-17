@@ -234,7 +234,7 @@ start_menu(){
     install_trojan
     ;;
     2)
-    remove_v2ray 
+    remove_trojan 
     ;;
     0)
     exit 1
