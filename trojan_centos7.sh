@@ -32,6 +32,7 @@ red "==============="
 exit
 fi
 
+function install_trojan(){
 systemctl stop firewalld
 systemctl disable firewalld
 yum -y install bind-utils wget unzip zip curl
@@ -45,7 +46,7 @@ if [ $real_addr == $local_addr ] ; then
 	green "=========================================="
 	green "域名解析正常，开启安装nginx并申请https证书"
 	green "=========================================="
-	sleep 1
+	sleep 1s
 	rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
     	yum install -y nginx
 	systemctl enable nginx.service
@@ -196,3 +197,55 @@ else
 	red "本次安装失败，请确保域名解析正常"
 	red "================================"
 fi
+}
+
+function remove_trojan(){
+    red "================================"
+    red "即将卸载trojan"
+    red "同时卸载安装的nginx"
+    red "================================"
+    systemctl stop trojan
+    systemctl disable trojan
+    rm -f /usr/lib/systemd/system/trojan.service
+    yum remove -y nginx
+    rm -rf /usr/src/trojan*
+    rm -rf /usr/share/nginx/html/*
+    green "=============="
+    green "trojan删除完毕"
+    green "=============="
+}
+start_menu(){
+    clear
+    green " ===================================="
+    green " 介绍：一键安装trojan      "
+    green " 系统：>=centos7                       "
+    green " 作者：atrandys                      "
+    green " 网站：www.atrandys.com              "
+    green " Youtube：atrandys                   "
+    green " ===================================="
+    echo
+    green " 1. 安装trojan"
+    red " 2. 卸载trojan"
+    yellow " 0. 退出脚本"
+    echo
+    read -p "请输入数字:" num
+    case "$num" in
+    1)
+    install_trojan
+    ;;
+    2)
+    remove_v2ray 
+    ;;
+    0)
+    exit 1
+    ;;
+    *)
+    clear
+    red "请输入正确数字"
+    sleep 1s
+    start_menu
+    ;;
+    esac
+}
+
+start_menu
