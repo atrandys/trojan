@@ -13,51 +13,34 @@ red(){
 if [[ -f /etc/redhat-release ]]; then
     release="centos"
     systemPackage="yum"
+    systempwd="/usr/lib/systemd/system/"
 elif cat /etc/issue | grep -Eqi "debian"; then
     release="debian"
-    systemPackage="apt"
+    systemPackage="apt-get"
+    systempwd="/lib/systemd/system/"
 elif cat /etc/issue | grep -Eqi "ubuntu"; then
     release="ubuntu"
-    systemPackage="apt"
+    systemPackage="apt-get"
+    systempwd="/lib/systemd/system/"
 elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
     release="centos"
     systemPackage="yum"
+    systempwd="/usr/lib/systemd/system/"
 elif cat /proc/version | grep -Eqi "debian"; then
     release="debian"
-    systemPackage="apt"
+    systemPackage="apt-get"
+    systempwd="/lib/systemd/system/"
 elif cat /proc/version | grep -Eqi "ubuntu"; then
     release="ubuntu"
-    systemPackage="apt"
+    systemPackage="apt-get"
+    systempwd="/lib/systemd/system/"
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
     release="centos"
     systemPackage="yum"
-fi
-
-if [ "$release"=="centos" ]; then
-    if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
-    red "==============="
-    red " 仅支持CentOS7"
-    red "==============="
-    exit
-    fi
-    if  [ -n "$(grep ' 5\.' /etc/redhat-release)" ] ;then
-    red "==============="
-    red " 仅支持CentOS7"
-    red "==============="
-    exit
-    fi
-elif [ "$release"=="ubuntu" ]; then
-    if  [ -n "$(grep ' 14\.' /etc/redhat-release)" ] ;then
-    red "==============="
-    red " 仅支持CentOS7"
-    red "==============="
-    exit
-    fi
+    systempwd="/usr/lib/systemd/system/"
 fi
 
 function install_trojan(){
-systemctl stop firewalld
-systemctl disable firewalld
 CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
 if [ "$CHECK" == "SELINUX=enforcing" ]; then
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
@@ -67,7 +50,40 @@ if [ "$CHECK" == "SELINUX=permissive" ]; then
     sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
 fi
-yum -y install  wget unzip zip curl tar >/dev/null 2>&1
+if [ "$release"=="centos" ]; then
+    if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    if  [ -n "$(grep ' 5\.' /etc/redhat-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    systemctl stop firewalld
+    systemctl disable firewalld
+    rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+elif [ "$release"=="ubuntu" ]; then
+    if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    if  [ -n "$(grep ' 12\.' /etc/os-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    systemctl stop ufw
+    systemctl disable ufw
+fi
+$systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
+systemctl enable nginx.service
 green "======================="
 yellow "请输入绑定到本VPS的域名"
 green "======================="
@@ -76,12 +92,37 @@ real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
 local_addr=`curl ipv4.icanhazip.com`
 if [ $real_addr == $local_addr ] ; then
 	green "=========================================="
-	green "域名解析正常，开启安装nginx并申请https证书"
+	green "       域名解析正常，开始安装trojan"
 	green "=========================================="
 	sleep 1s
-	rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
-    	yum install -y nginx
-	systemctl enable nginx.service
+cat > /etc/nginx/nginx.conf <<-EOF
+user  nginx;
+worker_processes  1;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+events {
+    worker_connections  1024;
+}
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                      '\$status \$body_bytes_sent "\$http_referer" '
+                      '"\$http_user_agent" "\$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    #tcp_nopush     on;
+    keepalive_timeout  120;
+    client_max_body_size 20m;
+    #gzip  on;
+    server {
+        listen       80;
+        server_name  $your_domain;
+        root /usr/share/nginx/html;
+        index index.php index.html index.htm;
+    }
+}
+EOF
 	#设置伪装站
 	rm -rf /usr/share/nginx/html/*
 	cd /usr/share/nginx/html/
@@ -190,7 +231,7 @@ EOF
 	mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/
 	#增加启动脚本
 	
-	cat > /usr/lib/systemd/system/trojan.service <<-EOF
+cat > ${systempwd}trojan.service <<-EOF
 [Unit]  
 Description=trojan  
 After=network.target  
@@ -207,7 +248,7 @@ PrivateTmp=true
 WantedBy=multi-user.target
 EOF
 
-	chmod +x /usr/lib/systemd/system/trojan.service
+	chmod +x ${systempwd}trojan.service
 	systemctl start trojan.service
 	systemctl enable trojan.service
 	green "======================================================================"
@@ -239,8 +280,8 @@ function remove_trojan(){
     red "================================"
     systemctl stop trojan
     systemctl disable trojan
-    rm -f /usr/lib/systemd/system/trojan.service
-    yum remove -y nginx
+    rm -f ${systempwd}trojan.service
+    $systemPackage remove -y nginx
     rm -rf /usr/src/trojan*
     rm -rf /usr/share/nginx/html/*
     green "=============="
