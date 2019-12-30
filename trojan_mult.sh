@@ -81,6 +81,7 @@ elif [ "$release" == "ubuntu" ]; then
     fi
     systemctl stop ufw
     systemctl disable ufw
+    apt-get update
 fi
 $systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
 systemctl enable nginx.service
