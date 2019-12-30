@@ -35,6 +35,7 @@ fi
 function install_trojan(){
 systemctl stop firewalld
 systemctl disable firewalld
+CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
 if [ "$CHECK" == "SELINUX=enforcing" ]; then
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
