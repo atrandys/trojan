@@ -9,19 +9,50 @@ green(){
 red(){
     echo -e "\033[31m\033[01m$1\033[0m"
 }
-
-
-if [ ! -e '/etc/redhat-release' ]; then
-red "==============="
-red " 仅支持CentOS7"
-red "==============="
-exit
+#copy from 秋水逸冰 ss scripts
+if [[ -f /etc/redhat-release ]]; then
+    release="centos"
+    systemPackage="yum"
+elif cat /etc/issue | grep -Eqi "debian"; then
+    release="debian"
+    systemPackage="apt"
+elif cat /etc/issue | grep -Eqi "ubuntu"; then
+    release="ubuntu"
+    systemPackage="apt"
+elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+    release="centos"
+    systemPackage="yum"
+elif cat /proc/version | grep -Eqi "debian"; then
+    release="debian"
+    systemPackage="apt"
+elif cat /proc/version | grep -Eqi "ubuntu"; then
+    release="ubuntu"
+    systemPackage="apt"
+elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+    release="centos"
+    systemPackage="yum"
 fi
-if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
-red "==============="
-red " 仅支持CentOS7"
-red "==============="
-exit
+
+if [ "$release"=="centos" ]; then
+    if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
+    red "==============="
+    red " 仅支持CentOS7"
+    red "==============="
+    exit
+    fi
+    if  [ -n "$(grep ' 5\.' /etc/redhat-release)" ] ;then
+    red "==============="
+    red " 仅支持CentOS7"
+    red "==============="
+    exit
+    fi
+elif [ "$release"=="ubuntu" ]; then
+    if  [ -n "$(grep ' 14\.' /etc/redhat-release)" ] ;then
+    red "==============="
+    red " 仅支持CentOS7"
+    red "==============="
+    exit
+    fi
 fi
 
 function install_trojan(){
