@@ -50,7 +50,7 @@ if [ "$CHECK" == "SELINUX=permissive" ]; then
     sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
 fi
-if [ "$release"=="centos" ]; then
+if [ "$release" == "centos" ]; then
     if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
     red "==============="
     red "当前系统不受支持"
@@ -66,7 +66,7 @@ if [ "$release"=="centos" ]; then
     systemctl stop firewalld
     systemctl disable firewalld
     rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
-elif [ "$release"=="ubuntu" ]; then
+elif [ "$release" == "ubuntu" ]; then
     if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
     red "==============="
     red "当前系统不受支持"
@@ -292,10 +292,10 @@ start_menu(){
     clear
     green " ===================================="
     green " 介绍：一键安装trojan      "
-    green " 系统：>=centos7                       "
+    green " 系统：>=centos7,>=debian 9,>=ubuntu16                       "
     green " 作者：atrandys                      "
     green " 网站：www.atrandys.com              "
-    green " Youtube：atrandys                   "
+    green " Youtube：Randy's 堡垒                "
     green " ===================================="
     echo
     green " 1. 安装trojan"
