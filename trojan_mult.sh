@@ -45,10 +45,28 @@ CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
 if [ "$CHECK" == "SELINUX=enforcing" ]; then
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
+    red "==================================================================="
+    red "检测到SELinux为开启状态，为防止申请证书失败，请先重启VPS后，再执行本脚本"
+    red "==================================================================="
+    read -p "是否现在重启 ?请输入 [Y/n] :" yn
+	[ -z "${yn}" ] && yn="y"
+	if [[ $yn == [Yy] ]]; then
+		echo -e "VPS 重启中..."
+		reboot
+	fi
 fi
 if [ "$CHECK" == "SELINUX=permissive" ]; then
     sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
+    red "==================================================================="
+    red "检测到SELinux为宽容状态，为防止申请证书失败，请先重启VPS后，再执行本脚本"
+    red "==================================================================="
+    read -p "是否现在重启 ?请输入 [Y/n] :" yn
+	[ -z "${yn}" ] && yn="y"
+	if [[ $yn == [Yy] ]]; then
+		echo -e "VPS 重启中..."
+		reboot
+	fi
 fi
 if [ "$release" == "centos" ]; then
     if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
