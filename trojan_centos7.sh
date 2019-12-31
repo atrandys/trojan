@@ -64,7 +64,7 @@ if [ $real_addr == $local_addr ] ; then
 	cd /usr/share/nginx/html/
 	wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
     	unzip web.zip
-	systemctl start nginx.service
+	systemctl restart nginx.service
 	#申请https证书
 	mkdir /usr/src/trojan-cert
 	curl https://get.acme.sh | sh
