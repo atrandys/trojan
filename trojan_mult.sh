@@ -313,8 +313,7 @@ start_menu(){
     clear
     green " ===================================="
     green " 介绍：一键安装trojan      "
-    green " 系统：>=centos7,>=debian 9,>=ubuntu16                       "
-    green " 作者：atrandys                      "
+    green " 系统：centos7+/debian9+/ubuntu16.04+"
     green " 网站：www.atrandys.com              "
     green " Youtube：Randy's 堡垒                "
     green " ===================================="
