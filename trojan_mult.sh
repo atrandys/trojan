@@ -302,7 +302,11 @@ function remove_trojan(){
     systemctl stop trojan
     systemctl disable trojan
     rm -f ${systempwd}trojan.service
-    $systemPackage remove -y nginx
+    if [ "$release" == "centos" ]; then
+        yum remove -y nginx
+    else
+        apt autoremove -y nginx
+    fi
     rm -rf /usr/src/trojan*
     rm -rf /usr/share/nginx/html/*
     green "=============="
