@@ -41,6 +41,20 @@ elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
 fi
 
 function install_trojan(){
+Port80=netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80
+Port443=netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443
+if [ -n "$Port80" ]; then
+    red "======================================================================="
+    red "     检测到80端口被占用，请检查是否存在占用80端口的进程，本次安装结束"
+    red "======================================================================="
+    exit 1
+fi
+if [ -n "$Port443" ]; then
+    red "======================================================================="
+    red "     检测到443端口被占用，请检查是否存在占用80端口的进程，本次安装结束"
+    red "======================================================================="
+    exit 1
+fi
 CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
 if [ "$CHECK" == "SELINUX=enforcing" ]; then
     red "======================================================================="
