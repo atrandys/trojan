@@ -41,17 +41,17 @@ elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
 fi
 
 function install_trojan(){
-Port80=netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80
-Port443=netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443
+Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
+Port443=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443`
 if [ -n "$Port80" ]; then
-    process80=netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'
+    process80=`netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'`
     red "======================================================"
     red "检测到80端口被占用，占用进程为：${process80}，本次安装结束"
     red "======================================================"
     exit 1
 fi
 if [ -n "$Port443" ]; then
-    process443=netstat -tlpn | awk -F '[: ]+' '$5=="443"{print $9}'
+    process443=`netstat -tlpn | awk -F '[: ]+' '$5=="443"{print $9}'`
     red "========================================================"
     red "检测到443端口被占用，占用进程为：${process443}，本次安装结束"
     red "========================================================"
