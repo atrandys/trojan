@@ -166,6 +166,7 @@ EOF
 	wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
     	unzip web.zip
 	systemctl restart nginx.service
+	sleep 10
 	#申请https证书
 	mkdir /usr/src/trojan-cert /usr/src/trojan-temp
 	curl https://get.acme.sh | sh
