@@ -167,7 +167,7 @@ EOF
     	unzip web.zip
 	systemctl restart nginx.service
 	#申请https证书
-	mkdir /usr/src/trojan-cert
+	mkdir /usr/src/trojan-cert /usr/src/trojan-temp
 	curl https://get.acme.sh | sh
 	~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
@@ -177,12 +177,17 @@ EOF
 	if test -s /usr/src/trojan-cert/fullchain.cer; then
         cd /usr/src
 	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
-	wget https://github.com/trojan-gfw/trojan/releases/download/v1.14.0/trojan-1.14.0-linux-amd64.tar.xz
-	tar xf trojan-1.*
+	wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
+	latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
+	wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
+	tar xf trojan-${latest_version}-linux-amd64.tar.xz
 	#下载trojan客户端
 	wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
+	wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
 	unzip trojan-cli.zip
+	unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/
 	cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
+	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
 	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
 	cat > /usr/src/trojan-cli/config.json <<-EOF
 {
@@ -290,7 +295,7 @@ EOF
 	systemctl enable trojan.service
 	green "======================================================================"
 	green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
-	green "1、复制下面的链接，在浏览器打开，下载客户端"
+	green "1、复制下面的链接，在浏览器打开，下载客户端，注意此下载链接将在1个小时后失效"
 	blue "http://${your_domain}/$trojan_path/trojan-cli.zip"
 	green "2、将下载的压缩包解压，打开文件夹，打开start.bat即打开并运行Trojan客户端"
 	green "3、打开stop.bat即关闭Trojan客户端"
@@ -329,6 +334,13 @@ function remove_trojan(){
     green "trojan删除完毕"
     green "=============="
 }
+
+function update_trojan(){
+    green "======================"
+    green "开发中"
+    green "======================"
+}
+
 start_menu(){
     clear
     green " ===================================="
@@ -340,6 +352,7 @@ start_menu(){
     echo
     green " 1. 安装trojan"
     red " 2. 卸载trojan"
+    green "3. 升级trojan"
     blue " 0. 退出脚本"
     echo
     read -p "请输入数字:" num
@@ -349,6 +362,9 @@ start_menu(){
     ;;
     2)
     remove_trojan 
+    ;;
+    3)
+    update_trojan 
     ;;
     0)
     exit 1
