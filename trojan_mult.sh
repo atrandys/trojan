@@ -309,7 +309,6 @@ EOF
 	green "不要担心，你可以手动修复证书申请"
 	green "1. 重启VPS"
 	green "2. 重新执行脚本，使用修复证书功能"
-	green "3. 使用以上命令尝试修复"
 	red "==================================="
 	fi
 	
@@ -336,6 +335,7 @@ if [ $real_addr == $local_addr ] ; then
         --fullchain-file /usr/src/trojan-cert/fullchain.cer
     if test -s /usr/src/trojan-cert/fullchain.cer; then
         green "证书申请成功"
+	green "请将/usr/src/trojan-cert/下的fullchain.cer下载放到客户端trojan-cli文件夹"
 	systemctl restart trojan
     else
     	red "申请证书失败"
