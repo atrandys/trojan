@@ -386,6 +386,7 @@ start_menu(){
     green " 1. 安装trojan"
     red " 2. 卸载trojan"
     green " 3. 升级trojan"
+    green " 4. 修复证书"
     blue " 0. 退出脚本"
     echo
     read -p "请输入数字:" num
