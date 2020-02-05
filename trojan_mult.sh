@@ -121,7 +121,8 @@ elif [ "$release" == "ubuntu" ]; then
     apt-get update
 fi
 $systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
-systemctl enable nginx.service
+systemctl enable nginx
+systemctl stop nginx
 green "======================="
 blue "请输入绑定到本VPS的域名"
 green "======================="
@@ -166,16 +167,15 @@ EOF
 	cd /usr/share/nginx/html/
 	wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
     	unzip web.zip
-	systemctl restart nginx.service
-	sleep 10
+	systemctl start nginx
+	sleep 5
 	#申请https证书
 	mkdir /usr/src/trojan-cert /usr/src/trojan-temp
 	curl https://get.acme.sh | sh
-	~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
+	~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
-        --fullchain-file /usr/src/trojan-cert/fullchain.cer \
-        --reloadcmd  "systemctl force-reload  nginx.service"
+        --fullchain-file /usr/src/trojan-cert/fullchain.cer
 	if test -s /usr/src/trojan-cert/fullchain.cer; then
         cd /usr/src
 	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
@@ -304,9 +304,13 @@ EOF
 	green "4、Trojan客户端需要搭配浏览器插件使用，例如switchyomega等"
 	green "======================================================================"
 	else
-        red "================================"
-	red "https证书没有申请成果，本次安装失败"
-	red "================================"
+        red "==================================="
+	red "https证书没有申请成果，自动安装失败"
+	green "不要担心，你可以手动修复证书申请"
+	green "1. 重启VPS"
+	green "2. 重新执行脚本，使用修复证书功能"
+	green "3. 使用以上命令尝试修复"
+	red "==================================="
 	fi
 	
 else
@@ -315,6 +319,33 @@ else
 	red "本次安装失败，请确保域名解析正常"
 	red "================================"
 fi
+}
+
+function repair_cert(){
+green "======================="
+blue "请输入绑定到本VPS的域名"
+blue "务必与之前失败使用的域名一致"
+green "======================="
+read your_domain
+real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
+local_addr=`curl ipv4.icanhazip.com`
+if [ $real_addr == $local_addr ] ; then
+    ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
+    ~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
+        --key-file   /usr/src/trojan-cert/private.key \
+        --fullchain-file /usr/src/trojan-cert/fullchain.cer
+    if test -s /usr/src/trojan-cert/fullchain.cer; then
+        green "证书申请成功"
+	systemctl restart trojan
+    else
+    	red "申请证书失败"
+    fi
+else
+    red "================================"
+    red "域名解析地址与本VPS IP地址不一致"
+    red "本次安装失败，请确保域名解析正常"
+    red "================================"
+fi	
 }
 
 function remove_trojan(){
@@ -367,6 +398,9 @@ start_menu(){
     ;;
     3)
     update_trojan 
+    ;;
+    4)
+    repair_cert 
     ;;
     0)
     exit 1
