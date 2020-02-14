@@ -141,22 +141,22 @@ curl https://get.acme.sh | sh
 --key-file   /usr/src/trojan-cert/private.key \
 --fullchain-file /usr/src/trojan-cert/fullchain.cer
 if test -s /usr/src/trojan-cert/fullchain.cer; then
-        cd /usr/src
-	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
-	wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
-	latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
-	wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
-	tar xf trojan-${latest_version}-linux-amd64.tar.xz
-	#下载trojan客户端
-	wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
-	wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
-	unzip trojan-cli.zip
-	unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/
-	cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
-	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
-	#trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
-	rm -rf /usr/src/trojan/server.conf
-	cat > /usr/src/trojan/server.conf <<-EOF
+    cd /usr/src
+    #wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
+    wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
+    latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
+    wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
+    tar xf trojan-${latest_version}-linux-amd64.tar.xz
+    #下载trojan客户端
+    wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
+    wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
+    unzip trojan-cli.zip
+    unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/
+    cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
+    mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
+    #trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
+    rm -rf /usr/src/trojan/server.conf
+    cat > /usr/src/trojan/server.conf <<-EOF
 {
     "run_type": "server",
     "local_addr": "0.0.0.0",
@@ -194,7 +194,7 @@ EOF
 
 #增加启动脚本
 	
-cat > ${systempwd}trojan.service <<-EOF
+    cat > ${systempwd}trojan.service <<-EOF
 [Unit]  
 Description=trojan  
 After=network.target  
@@ -211,15 +211,15 @@ PrivateTmp=true
 WantedBy=multi-user.target
 EOF
 
-	chmod +x ${systempwd}trojan.service
-	systemctl start trojan.service
-	systemctl enable trojan.service
-	green "==============="
-	green "Trojan已安装完成"
-	green "==============="
+    chmod +x ${systempwd}trojan.service
+    systemctl start trojan.service 
+    systemctl enable trojan.service 
+    green "==============="
+    green "Trojan已安装完成"
+    green "==============="
 else
-        red "==================================="
-	red "https证书没有申请成果，自动安装失败"
-	green "不要担心，你可以手动修复证书申请"
-	red "==================================="
+    red "==================================="
+    red "https证书没有申请成果，自动安装失败" 
+    green "不要担心，你可以手动修复证书申请"
+    red "==================================="
 fi
