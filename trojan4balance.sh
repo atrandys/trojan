@@ -118,7 +118,7 @@ elif [ "$release" == "ubuntu" ]; then
     systemctl disable ufw
     apt-get update
 fi
-$systemPackage -y install  wget unzip zip curl tar >/dev/null 2>&1
+$systemPackage -y install  wget unzip zip curl tar socat >/dev/null 2>&1
 curl https://getcaddy.com | bash -s personal
 mkdir /etc/caddy
 touch /etc/caddy/Caddyfile
