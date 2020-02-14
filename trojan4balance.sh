@@ -42,15 +42,8 @@ fi
 
 function install_trojan(){
 $systemPackage -y install net-tools
-Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
+#Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
 Port443=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443`
-if [ -n "$Port80" ]; then
-    process80=`netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'`
-    red "==========================================================="
-    red "检测到80端口被占用，占用进程为：${process80}，本次安装结束"
-    red "==========================================================="
-    exit 1
-fi
 if [ -n "$Port443" ]; then
     process443=`netstat -tlpn | awk -F '[: ]+' '$5=="443"{print $9}'`
     red "============================================================="
@@ -102,7 +95,6 @@ if [ "$release" == "centos" ]; then
     fi
     systemctl stop firewalld
     systemctl disable firewalld
-    rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
 elif [ "$release" == "ubuntu" ]; then
     if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
     red "==============="
@@ -120,38 +112,15 @@ elif [ "$release" == "ubuntu" ]; then
     systemctl disable ufw
     apt-get update
 fi
-$systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
-systemctl enable nginx
-systemctl stop nginx
-your_domain=$1
-cat > /etc/nginx/nginx.conf <<-EOF
-user  root;
-worker_processes  1;
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-events {
-    worker_connections  1024;
-}
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
-    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
-                      '\$status \$body_bytes_sent "\$http_referer" '
-                      '"\$http_user_agent" "\$http_x_forwarded_for"';
-    access_log  /var/log/nginx/access.log  main;
-    sendfile        on;
-    #tcp_nopush     on;
-    keepalive_timeout  120;
-    client_max_body_size 20m;
-    #gzip  on;
-    server {
-        listen       80;
-        server_name  $your_domain;
-        root /usr/share/nginx/html;
-        index index.php index.html index.htm;
-    }
-}
-EOF
+$systemPackage -y install  wget unzip zip curl tar >/dev/null 2>&1
+curl https://getcaddy.com | bash -s personal
+mkdir /etc/caddy
+touch /etc/caddy/Caddyfile
+#chown -R root:www-data /etc/caddy
+mkdir /var/caddy
+echo '$1:7777' >> Caddyfile
+echo 'root /var/caddy/' >> Caddyfile
+curl -s https://raw.githubusercontent.com/mholt/caddy/master/dist/init/linux-systemd/caddy.service -o $systempwd/caddy.service
 	#设置伪装站
 	rm -rf /usr/share/nginx/html/*
 	cd /usr/share/nginx/html/
