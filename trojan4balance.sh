@@ -40,7 +40,6 @@ elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
     systempwd="/usr/lib/systemd/system/"
 fi
 
-function install_trojan(){
 $systemPackage -y install net-tools
 Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
 Port443=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443`
@@ -125,8 +124,8 @@ mkdir /etc/caddy
 touch /etc/caddy/Caddyfile
 #chown -R root:www-data /etc/caddy
 mkdir /var/caddy
-echo ''$1':7777' >> Caddyfile
-echo 'root /var/caddy/' >> Caddyfile
+echo "$1:7777" >> Caddyfile
+echo "root /var/caddy/" >> Caddyfile
 curl -s https://raw.githubusercontent.com/mholt/caddy/master/dist/init/linux-systemd/caddy.service -o ${systempwd}caddy.service
 systemctl daemon-reload       
 systemctl enable caddy.service 
@@ -137,8 +136,8 @@ unzip web.zip
 systemctl restart caddy.service
 #申请https证书
 curl https://get.acme.sh | sh
-~/.acme.sh/acme.sh --issue -d "$1" --standalone
-~/.acme.sh/acme.sh  --installcert  -d  "$1"   \
+~/.acme.sh/acme.sh --issue -d $1 --standalone
+~/.acme.sh/acme.sh  --installcert  -d  $1   \
 --key-file   /usr/src/trojan-cert/private.key \
 --fullchain-file /usr/src/trojan-cert/fullchain.cer
 	if test -s /usr/src/trojan-cert/fullchain.cer; then
@@ -224,12 +223,3 @@ EOF
 	green "不要担心，你可以手动修复证书申请"
 	red "==================================="
 	fi
-	
-}
-
-
-start_menu(){
-    install_trojan
-}
-
-start_menu
