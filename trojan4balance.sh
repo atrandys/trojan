@@ -123,9 +123,9 @@ curl https://getcaddy.com | bash -s personal
 mkdir /etc/caddy
 touch /etc/caddy/Caddyfile
 #chown -R root:www-data /etc/caddy
-mkdir /var/caddy
-echo "$1:7777" >> Caddyfile
-echo "root /var/caddy/" >> Caddyfile
+mkdir /var/caddy /usr/src/trojan-cert
+echo "$1:7777" >> /etc/caddy/Caddyfile
+echo "root /var/caddy/" >> /etc/caddy/Caddyfile
 curl -s https://raw.githubusercontent.com/mholt/caddy/master/dist/init/linux-systemd/caddy.service -o ${systempwd}caddy.service
 systemctl daemon-reload       
 systemctl enable caddy.service 
@@ -147,13 +147,6 @@ if test -s /usr/src/trojan-cert/fullchain.cer; then
     latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
     wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
     tar xf trojan-${latest_version}-linux-amd64.tar.xz
-    #下载trojan客户端
-    wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
-    wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
-    unzip trojan-cli.zip
-    unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/
-    cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
-    mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
     #trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
     rm -rf /usr/src/trojan/server.conf
     cat > /usr/src/trojan/server.conf <<-EOF
