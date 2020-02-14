@@ -140,7 +140,7 @@ curl https://get.acme.sh | sh
 ~/.acme.sh/acme.sh  --installcert  -d  $1   \
 --key-file   /usr/src/trojan-cert/private.key \
 --fullchain-file /usr/src/trojan-cert/fullchain.cer
-	if test -s /usr/src/trojan-cert/fullchain.cer; then
+if test -s /usr/src/trojan-cert/fullchain.cer; then
         cd /usr/src
 	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
 	wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
@@ -217,9 +217,9 @@ EOF
 	green "==============="
 	green "Trojan已安装完成"
 	green "==============="
-	else
+else
         red "==================================="
 	red "https证书没有申请成果，自动安装失败"
 	green "不要担心，你可以手动修复证书申请"
 	red "==================================="
-	fi
+fi
