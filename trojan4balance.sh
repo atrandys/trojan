@@ -101,6 +101,7 @@ if [ "$release" == "centos" ]; then
     fi
     systemctl stop firewalld
     systemctl disable firewalld
+    rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
 elif [ "$release" == "ubuntu" ]; then
     if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
     red "==============="
@@ -118,27 +119,47 @@ elif [ "$release" == "ubuntu" ]; then
     systemctl disable ufw
     apt-get update
 fi
-$systemPackage -y install  wget unzip zip curl tar socat >/dev/null 2>&1
-groupadd www-data
-useradd -g www-data www-data       
-curl https://getcaddy.com | bash -s personal
-mkdir /etc/caddy
-touch /etc/caddy/Caddyfile
-#chown -R root:www-data /etc/caddy
-mkdir /var/caddy /usr/src/trojan-cert
-echo "$1:7777" >> /etc/caddy/Caddyfile
-echo "root /var/caddy/" >> /etc/caddy/Caddyfile
-chown -R root:www-data /etc/caddy
-curl -s https://raw.githubusercontent.com/mholt/caddy/master/dist/init/linux-systemd/caddy.service -o ${systempwd}caddy.service
-systemctl daemon-reload       
-systemctl enable caddy.service 
+$systemPackage -y install  nginx wget unzip zip curl tar socat >/dev/null 2>&1
+systemctl enable nginx
+systemctl stop nginx
+cat > /etc/nginx/nginx.conf <<-EOF
+user  root;
+worker_processes  1;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+events {
+    worker_connections  1024;
+}
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                      '\$status \$body_bytes_sent "\$http_referer" '
+                      '"\$http_user_agent" "\$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    #tcp_nopush     on;
+    keepalive_timeout  120;
+    client_max_body_size 20m;
+    #gzip  on;
+    server {
+        listen       7777;
+        server_name  $1;
+        root /usr/share/nginx/html;
+        index index.php index.html index.htm;
+    }
+}
+EOF
+
 #设置伪装站
-cd /var/caddy/
+rm -rf /usr/share/nginx/html/*
+cd /usr/share/nginx/html/
 wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
 unzip web.zip
-chown www-data:www-data /var/caddy/
-systemctl restart caddy.service
+systemctl start nginx
+
 #申请https证书
+mkdir /usr/src/trojan-cert
 curl https://get.acme.sh | sh
 ~/.acme.sh/acme.sh --issue -d $1 --standalone
 ~/.acme.sh/acme.sh  --installcert  -d  $1   \
