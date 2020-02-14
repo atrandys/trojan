@@ -152,6 +152,7 @@ http {
 EOF
 
 #设置伪装站
+mkdir /usr/share/nginx/html
 rm -rf /usr/share/nginx/html/*
 cd /usr/share/nginx/html/
 wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
