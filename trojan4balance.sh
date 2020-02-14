@@ -119,6 +119,8 @@ elif [ "$release" == "ubuntu" ]; then
     apt-get update
 fi
 $systemPackage -y install  wget unzip zip curl tar socat >/dev/null 2>&1
+groupadd www-data
+useradd -g www-data www-data       
 curl https://getcaddy.com | bash -s personal
 mkdir /etc/caddy
 touch /etc/caddy/Caddyfile
@@ -126,6 +128,7 @@ touch /etc/caddy/Caddyfile
 mkdir /var/caddy /usr/src/trojan-cert
 echo "$1:7777" >> /etc/caddy/Caddyfile
 echo "root /var/caddy/" >> /etc/caddy/Caddyfile
+chown -R root:www-data /etc/caddy
 curl -s https://raw.githubusercontent.com/mholt/caddy/master/dist/init/linux-systemd/caddy.service -o ${systempwd}caddy.service
 systemctl daemon-reload       
 systemctl enable caddy.service 
@@ -133,6 +136,7 @@ systemctl enable caddy.service
 cd /var/caddy/
 wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
 unzip web.zip
+chown www-data:www-data /var/caddy/
 systemctl restart caddy.service
 #申请https证书
 curl https://get.acme.sh | sh
