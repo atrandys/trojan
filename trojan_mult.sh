@@ -120,6 +120,8 @@ elif [ "$release" == "ubuntu" ]; then
     systemctl stop ufw
     systemctl disable ufw
     apt-get update
+elif [ "$release" == "debian" ]; then
+    apt-get update
 fi
 $systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
 systemctl enable nginx
