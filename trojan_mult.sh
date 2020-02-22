@@ -388,16 +388,16 @@ function update_trojan(){
 
 start_menu(){
     clear
-    green " ===================================="
+    green " ======================================="
     green " 介绍：一键安装trojan      "
     green " 系统：centos7+/debian9+/ubuntu16.04+"
     green " 网站：www.atrandys.com              "
     green " Youtube：Randy's 堡垒                "
-    red " 声明："
-    green " 请不要在任何生产环境使用此脚本"
-    green " 请不要有其他程序占用80和443端口"
-    green " 若是第二次使用脚本，请先执行卸载trojan"
-    green " ===================================="
+    blue " 声明："
+    red " *请不要在任何生产环境使用此脚本"
+    red " *请不要有其他程序占用80和443端口"
+    red " *若是第二次使用脚本，请先执行卸载trojan"
+    green " ======================================="
     echo
     green " 1. 安装trojan"
     red " 2. 卸载trojan"
