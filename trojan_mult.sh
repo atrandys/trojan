@@ -173,6 +173,9 @@ EOF
 	systemctl stop nginx
 	sleep 5
 	#申请https证书
+	if [ ! -d "/usr/src" ]; then
+	    mkdir /usr/src
+	fi
 	mkdir /usr/src/trojan-cert /usr/src/trojan-temp
 	curl https://get.acme.sh | sh
 	~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone
