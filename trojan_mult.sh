@@ -381,11 +381,12 @@ function update_trojan(){
     wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
     latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
     rm -f latest
+    rm -f trojan.tmp
     if version_lt "$curr_version" "$latest_version"; then
         green "当前版本$curr_version,最新版本$latest_version,开始升级……"
         mkdir trojan_update_temp && cd trojan_update_temp
-        wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
-        tar xf trojan-${latest_version}-linux-amd64.tar.xz
+        wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz >/dev/null 2>&1
+        tar xf trojan-${latest_version}-linux-amd64.tar.xz >/dev/null 2>&1
         mv ./trojan/trojan /usr/src/trojan/
         cd .. && rm -rf trojan_update_temp
         systemctl restart trojan
