@@ -404,6 +404,9 @@ function update_trojan(){
         mv ./trojan/trojan /usr/src/trojan/
         cd .. && rm -rf trojan_update_temp
         systemctl restart trojan
+	/usr/src/trojan/trojan -v 2>trojan.tmp
+	green "trojan升级完成，当前版本：`cat trojan.tmp | grep "trojan" | awk '{print $4}'`"
+	rm -f trojan.tmp
     else
         green "当前版本$curr_version,最新版本$latest_version,无需升级"
     fi
