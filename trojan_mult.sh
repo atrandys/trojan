@@ -74,8 +74,8 @@ EOF
 	#设置伪装站
 	rm -rf /usr/share/nginx/html/*
 	cd /usr/share/nginx/html/
-	wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip
-    	unzip web.zip
+	wget https://github.com/atrandys/v2ray-ws-tls/raw/master/web.zip >/dev/null 2>&1
+    	unzip web.zip >/dev/null 2>&1
 	systemctl stop nginx
 	sleep 5
 	#申请https证书
