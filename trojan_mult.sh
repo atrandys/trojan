@@ -9,6 +9,9 @@ green(){
 red(){
     echo -e "\033[31m\033[01m$1\033[0m"
 }
+version_lt(){
+    test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; 
+}
 #copy from 秋水逸冰 ss scripts
 if [[ -f /etc/redhat-release ]]; then
     release="centos"
@@ -41,7 +44,10 @@ elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
 fi
 
 function install_trojan(){
-systemctl stop nginx
+nginx_status=`ps -aux | grep "nginx: worker" |grep -v "grep"`
+if [ -n "$nginx_status" ]; then
+    systemctl stop nginx
+fi
 $systemPackage -y install net-tools socat
 Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
 Port443=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443`
@@ -60,33 +66,9 @@ if [ -n "$Port443" ]; then
     exit 1
 fi
 CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
-if [ "$CHECK" == "SELINUX=enforcing" ]; then
-    red "======================================================================="
-    red "检测到SELinux为开启状态，为防止申请证书失败，请先重启VPS后，再执行本脚本"
-    red "======================================================================="
-    read -p "是否现在重启 ?请输入 [Y/n] :" yn
-	[ -z "${yn}" ] && yn="y"
-	if [[ $yn == [Yy] ]]; then
-	    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-            setenforce 0
-	    echo -e "VPS 重启中..."
-	    reboot
-	fi
-    exit
-fi
-if [ "$CHECK" == "SELINUX=permissive" ]; then
-    red "======================================================================="
-    red "检测到SELinux为宽容状态，为防止申请证书失败，请先重启VPS后，再执行本脚本"
-    red "======================================================================="
-    read -p "是否现在重启 ?请输入 [Y/n] :" yn
-	[ -z "${yn}" ] && yn="y"
-	if [[ $yn == [Yy] ]]; then
-	    sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
-            setenforce 0
-	    echo -e "VPS 重启中..."
-	    reboot
-	fi
-    exit
+if [ "$CHECK" != "SELINUX=disabled" ]; then
+    semanage port -a -t http_port_t -p tcp 80
+    semanage port -a -t http_port_t -p tcp 443
 fi
 if [ "$release" == "centos" ]; then
     if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
@@ -101,8 +83,12 @@ if [ "$release" == "centos" ]; then
     red "==============="
     exit
     fi
-    systemctl stop firewalld
-    systemctl disable firewalld
+    firewall_status=`firewall-cmd --state`
+    if [ "$firewall_status" == "running" ]; then
+        green "检测到firewalld开启状态，添加放行80/443端口规则"
+        firewall-cmd --zone=public --add-port=80/tcp --permanent
+	firewall-cmd --zone=public --add-port=443/tcp --permanent
+    fi
     rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
 elif [ "$release" == "ubuntu" ]; then
     if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
@@ -117,8 +103,11 @@ elif [ "$release" == "ubuntu" ]; then
     red "==============="
     exit
     fi
-    systemctl stop ufw
-    systemctl disable ufw
+    ufw_status=`systemctl status ufw | grep "Active: active"`
+    if [ -n "$ufw_status" ]; then
+        ufw allow 80/tcp
+        ufw allow 443/tcp
+    fi
     apt-get update
 elif [ "$release" == "debian" ]; then
     apt-get update
@@ -188,6 +177,7 @@ EOF
 	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
 	wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
 	latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
+	rm -f latest
 	wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
 	tar xf trojan-${latest_version}-linux-amd64.tar.xz
 	#下载trojan客户端
@@ -292,7 +282,7 @@ Type=simple
 PIDFile=/usr/src/trojan/trojan/trojan.pid
 ExecStart=/usr/src/trojan/trojan -c "/usr/src/trojan/server.conf"  
 ExecReload=  
-ExecStop=/usr/src/trojan/trojan  
+ExecStop=kill -9 $(pidof /usr/src/trojan/trojan)  
 PrivateTmp=true  
    
 [Install]  
@@ -386,9 +376,24 @@ function remove_trojan(){
 }
 
 function update_trojan(){
-    green "======================"
-    green "开发中"
-    green "======================"
+    /usr/src/trojan/trojan -v 2>trojan.tmp
+    curr_version=`cat trojan.tmp | grep "trojan" | awk '{print $4}'`
+    wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
+    latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
+    rm -f latest
+    if version_lt "$curr_version" "$latest_version"; then
+        green "当前版本$curr_version,最新版本$latest_version,开始升级……"
+        mkdir trojan_update_temp && cd trojan_update_temp
+        wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
+        tar xf trojan-${latest_version}-linux-amd64.tar.xz
+        mv ./trojan/trojan /usr/src/trojan/
+        cd .. && rm -rf trojan_update_temp
+        systemctl restart trojan
+    else
+        green "当前版本$curr_version,最新版本$latest_version,无需升级"
+    fi
+   
+   
 }
 
 start_menu(){
