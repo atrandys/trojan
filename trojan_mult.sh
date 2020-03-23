@@ -273,6 +273,7 @@ if [ "$release" == "centos" ]; then
         green "检测到firewalld开启状态，添加放行80/443端口规则"
         firewall-cmd --zone=public --add-port=80/tcp --permanent
 	firewall-cmd --zone=public --add-port=443/tcp --permanent
+	firewall-cmd --reload
     fi
     rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
 elif [ "$release" == "ubuntu" ]; then
