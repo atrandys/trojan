@@ -42,90 +42,7 @@ elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
     systemPackage="yum"
     systempwd="/usr/lib/systemd/system/"
 fi
-
-function install_trojan(){
-nginx_status=`ps -aux | grep "nginx: worker" |grep -v "grep"`
-if [ -n "$nginx_status" ]; then
-    systemctl stop nginx
-fi
-$systemPackage -y install net-tools socat
-Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
-Port443=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443`
-if [ -n "$Port80" ]; then
-    process80=`netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'`
-    red "==========================================================="
-    red "检测到80端口被占用，占用进程为：${process80}，本次安装结束"
-    red "==========================================================="
-    exit 1
-fi
-if [ -n "$Port443" ]; then
-    process443=`netstat -tlpn | awk -F '[: ]+' '$5=="443"{print $9}'`
-    red "============================================================="
-    red "检测到443端口被占用，占用进程为：${process443}，本次安装结束"
-    red "============================================================="
-    exit 1
-fi
-CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
-if [ "$CHECK" != "SELINUX=disabled" ]; then
-    semanage port -a -t http_port_t -p tcp 80
-    semanage port -a -t http_port_t -p tcp 443
-fi
-if [ "$release" == "centos" ]; then
-    if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
-    red "==============="
-    red "当前系统不受支持"
-    red "==============="
-    exit
-    fi
-    if  [ -n "$(grep ' 5\.' /etc/redhat-release)" ] ;then
-    red "==============="
-    red "当前系统不受支持"
-    red "==============="
-    exit
-    fi
-    firewall_status=`firewall-cmd --state`
-    if [ "$firewall_status" == "running" ]; then
-        green "检测到firewalld开启状态，添加放行80/443端口规则"
-        firewall-cmd --zone=public --add-port=80/tcp --permanent
-	firewall-cmd --zone=public --add-port=443/tcp --permanent
-    fi
-    rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
-elif [ "$release" == "ubuntu" ]; then
-    if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
-    red "==============="
-    red "当前系统不受支持"
-    red "==============="
-    exit
-    fi
-    if  [ -n "$(grep ' 12\.' /etc/os-release)" ] ;then
-    red "==============="
-    red "当前系统不受支持"
-    red "==============="
-    exit
-    fi
-    ufw_status=`systemctl status ufw | grep "Active: active"`
-    if [ -n "$ufw_status" ]; then
-        ufw allow 80/tcp
-        ufw allow 443/tcp
-    fi
-    apt-get update
-elif [ "$release" == "debian" ]; then
-    apt-get update
-fi
-$systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
-systemctl enable nginx
-systemctl stop nginx
-green "======================="
-blue "请输入绑定到本VPS的域名"
-green "======================="
-read your_domain
-real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
-local_addr=`curl ipv4.icanhazip.com`
-if [ $real_addr == $local_addr ] ; then
-	green "=========================================="
-	green "       域名解析正常，开始安装trojan"
-	green "=========================================="
-	sleep 1s
+function install(){
 cat > /etc/nginx/nginx.conf <<-EOF
 user  root;
 worker_processes  1;
@@ -175,16 +92,16 @@ EOF
 	systemctl start nginx
         cd /usr/src
 	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
-	wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
+	wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest >/dev/null 2>&1
 	latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
 	rm -f latest
-	wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
-	tar xf trojan-${latest_version}-linux-amd64.tar.xz
+	wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz >/dev/null 2>&1
+	tar xf trojan-${latest_version}-linux-amd64.tar.xz >/dev/null 2>&1
 	#下载trojan客户端
-	wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
-	wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
-	unzip trojan-cli.zip
-	unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/
+	wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip >/dev/null 2>&1
+	wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip >/dev/null 2>&1
+	unzip trojan-cli.zip >/dev/null 2>&1
+	unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
 	cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
 	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
 	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
@@ -308,12 +225,106 @@ EOF
 	green "2. 重新执行脚本，使用修复证书功能"
 	red "==================================="
 	fi
+}
+function install_trojan(){
+nginx_status=`ps -aux | grep "nginx: worker" |grep -v "grep"`
+if [ -n "$nginx_status" ]; then
+    systemctl stop nginx
+fi
+$systemPackage -y install net-tools socat
+Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
+Port443=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 443`
+if [ -n "$Port80" ]; then
+    process80=`netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'`
+    red "==========================================================="
+    red "检测到80端口被占用，占用进程为：${process80}，本次安装结束"
+    red "==========================================================="
+    exit 1
+fi
+if [ -n "$Port443" ]; then
+    process443=`netstat -tlpn | awk -F '[: ]+' '$5=="443"{print $9}'`
+    red "============================================================="
+    red "检测到443端口被占用，占用进程为：${process443}，本次安装结束"
+    red "============================================================="
+    exit 1
+fi
+CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
+if [ "$CHECK" != "SELINUX=disabled" ]; then
+    semanage port -a -t http_port_t -p tcp 80
+    semanage port -a -t http_port_t -p tcp 443
+fi
+if [ "$release" == "centos" ]; then
+    if  [ -n "$(grep ' 6\.' /etc/redhat-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    if  [ -n "$(grep ' 5\.' /etc/redhat-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    firewall_status=`firewall-cmd --state`
+    if [ "$firewall_status" == "running" ]; then
+        green "检测到firewalld开启状态，添加放行80/443端口规则"
+        firewall-cmd --zone=public --add-port=80/tcp --permanent
+	firewall-cmd --zone=public --add-port=443/tcp --permanent
+    fi
+    rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+elif [ "$release" == "ubuntu" ]; then
+    if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    if  [ -n "$(grep ' 12\.' /etc/os-release)" ] ;then
+    red "==============="
+    red "当前系统不受支持"
+    red "==============="
+    exit
+    fi
+    ufw_status=`systemctl status ufw | grep "Active: active"`
+    if [ -n "$ufw_status" ]; then
+        ufw allow 80/tcp
+        ufw allow 443/tcp
+    fi
+    apt-get update
+elif [ "$release" == "debian" ]; then
+    apt-get update
+fi
+$systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
+systemctl enable nginx
+systemctl stop nginx
+green "======================="
+blue "请输入绑定到本VPS的域名"
+green "======================="
+read your_domain
+real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
+local_addr=`curl ipv4.icanhazip.com`
+if [ $real_addr == $local_addr ] ; then
+	green "=========================================="
+	green "       域名解析正常，开始安装trojan"
+	green "=========================================="
+	sleep 1s
+        install
 	
 else
-	red "================================"
+        red "===================================="
 	red "域名解析地址与本VPS IP地址不一致"
-	red "本次安装失败，请确保域名解析正常"
-	red "================================"
+	red "若你确认解析成功你可强制脚本继续运行"
+	red "===================================="
+	read -p "是否强制运行 ?请输入 [Y/n] :" yn
+	[ -z "${yn}" ] && yn="y"
+	if [[ $yn == [Yy] ]]; then
+            green "强制继续运行脚本"
+	    sleep 1s
+	    install
+	else
+	    exit 1
+	fi
 fi
 }
 
@@ -378,7 +389,7 @@ function remove_trojan(){
 function update_trojan(){
     /usr/src/trojan/trojan -v 2>trojan.tmp
     curr_version=`cat trojan.tmp | grep "trojan" | awk '{print $4}'`
-    wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest
+    wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest >/dev/null 2>&1
     latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
     rm -f latest
     rm -f trojan.tmp
