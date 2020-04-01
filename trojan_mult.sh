@@ -271,6 +271,7 @@ if [ "$release" == "centos" ]; then
     firewall_status=`firewall-cmd --state`
     if [ "$firewall_status" == "running" ]; then
         green "检测到firewalld开启状态，添加放行80/443端口规则"
+	yum install -y policycoreutils-python >/dev/null 2>&1
         firewall-cmd --zone=public --add-port=80/tcp --permanent
 	firewall-cmd --zone=public --add-port=443/tcp --permanent
 	firewall-cmd --reload
@@ -296,6 +297,11 @@ elif [ "$release" == "ubuntu" ]; then
     fi
     apt-get update
 elif [ "$release" == "debian" ]; then
+    ufw_status=`systemctl status ufw | grep "Active: active"`
+    if [ -n "$ufw_status" ]; then
+        ufw allow 80/tcp
+        ufw allow 443/tcp
+    fi
     apt-get update
 fi
 $systemPackage -y install  nginx wget unzip zip curl tar >/dev/null 2>&1
@@ -333,6 +339,8 @@ fi
 
 function repair_cert(){
 systemctl stop nginx
+iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+iptables -I INPUT -p tcp --dport 443 -j ACCEPT
 Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
 if [ -n "$Port80" ]; then
     process80=`netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'`
