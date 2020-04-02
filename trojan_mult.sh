@@ -198,9 +198,9 @@ After=network.target
 Type=simple  
 PIDFile=/usr/src/trojan/trojan/trojan.pid
 ExecStart=/usr/src/trojan/trojan -c "/usr/src/trojan/server.conf"  
-ExecReload=  
-ExecStop=/bin/kill -9 $(pidof /usr/src/trojan/trojan)  
-PrivateTmp=true  
+ExecReload=/bin/kill -HUP \$MAINPID
+Restart=on-failure
+RestartSec=1s
    
 [Install]  
 WantedBy=multi-user.target
