@@ -199,7 +199,7 @@ Type=simple
 PIDFile=/usr/src/trojan/trojan/trojan.pid
 ExecStart=/usr/src/trojan/trojan -c "/usr/src/trojan/server.conf"  
 ExecReload=  
-ExecStop=kill -9 $(pidof /usr/src/trojan/trojan)  
+ExecStop=/bin/kill -9 $(pidof /usr/src/trojan/trojan)  
 PrivateTmp=true  
    
 [Install]  
