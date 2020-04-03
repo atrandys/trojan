@@ -242,7 +242,7 @@ fi
 CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
 if [ "$CHECK" != "SELINUX=disabled" ]; then
     green "检测到SELinux开启状态，添加放行80/443端口规则"
-    yum install -y policycoreutils-python >/dev/null 2>&1
+    $systemPackage install -y policycoreutils-python >/dev/null 2>&1
     semanage port -m -t http_port_t -p tcp 80
     semanage port -m -t http_port_t -p tcp 443
 fi
