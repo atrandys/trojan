@@ -88,7 +88,7 @@ pid        /var/run/nginx.pid;
 events {
     worker_connections  1024;
 }
-http {0
+http {
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
     log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
@@ -434,11 +434,11 @@ EOF
 	    chmod +x ${systempwd}trojan.service
 	    systemctl start trojan.service
 	    systemctl enable trojan.service
-            install_php
+            install_php7
             install_mysql
             install_nginx
             config_php
-            downloda_wp
+            download_wp
             install_wp
             cd /usr/src/trojan-cli/
             zip -q -r trojan-cli.zip /usr/src/trojan-cli/
