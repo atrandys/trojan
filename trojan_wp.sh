@@ -275,6 +275,7 @@ if [ "$release" == "centos" ]; then
         yum install -y policycoreutils-python >/dev/null 2>&1
         semanage port -m -t http_port_t -p tcp 80
         semanage port -m -t http_port_t -p tcp 443
+	semanage port -a -t http_port_t -p tcp 4443
     fi
     firewall_status=`firewall-cmd --state`
     if [ "$firewall_status" == "running" ]; then
