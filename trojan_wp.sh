@@ -124,6 +124,23 @@ server {
        try_files \$uri \$uri/ /index.php?\$args;
     }
 }
+server {
+    listen  4443;
+    server_name $your_domain;
+    allow 127.0.0.1;
+    root /usr/share/nginx/html;
+    index index.php index.html;
+    ssl_certificate /usr/src/trojan-cert/fullchain.cer; 
+    ssl_certificate_key /usr/src/trojan-cert/private.key;
+    location ~ \.php$ {
+    	fastcgi_pass 127.0.0.1:9000;
+    	fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+    	include fastcgi_params;
+    }
+    location / {
+       try_files \$uri \$uri/ /index.php?\$args;
+    }
+}
 EOF
 
 }
@@ -370,7 +387,7 @@ EOF
     "local_addr": "0.0.0.0",
     "local_port": 443,
     "remote_addr": "127.0.0.1",
-    "remote_port": 80,
+    "remote_port": 4443,
     "password": [
         "$trojan_passwd"
     ],
