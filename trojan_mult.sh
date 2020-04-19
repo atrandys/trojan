@@ -87,8 +87,7 @@ EOF
 	~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
-        --fullchain-file /usr/src/trojan-cert/fullchain.cer \
-	--reloadcmd  "systemctl restart trojan"
+        --fullchain-file /usr/src/trojan-cert/fullchain.cer
 	if test -s /usr/src/trojan-cert/fullchain.cer; then
 	systemctl start nginx
         cd /usr/src
@@ -210,6 +209,10 @@ EOF
 	chmod +x ${systempwd}trojan.service
 	systemctl start trojan.service
 	systemctl enable trojan.service
+	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
+        --key-file   /usr/src/trojan-cert/private.key \
+        --fullchain-file /usr/src/trojan-cert/fullchain.cer \
+	--reloadcmd  "systemctl restart trojan"
 	green "======================================================================"
 	green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
 	green "1、复制下面的链接，在浏览器打开，下载客户端，注意此下载链接将在1个小时后失效"
@@ -269,10 +272,9 @@ if [ "$release" == "centos" ]; then
     red "==============="
     exit
     fi
-    firewall_status=`firewall-cmd --state`
-    if [ "$firewall_status" == "running" ]; then
+    firewall_status=`systemctl status ufw | grep "Active: active"`
+    if [ -n "$firewall_status" ]; then
         green "检测到firewalld开启状态，添加放行80/443端口规则"
-	yum install -y policycoreutils-python >/dev/null 2>&1
         firewall-cmd --zone=public --add-port=80/tcp --permanent
 	firewall-cmd --zone=public --add-port=443/tcp --permanent
 	firewall-cmd --reload
