@@ -272,7 +272,7 @@ if [ "$release" == "centos" ]; then
     red "==============="
     exit
     fi
-    firewall_status=`systemctl status ufw | grep "Active: active"`
+    firewall_status=`systemctl status firewalld | grep "Active: active"`
     if [ -n "$firewall_status" ]; then
         green "检测到firewalld开启状态，添加放行80/443端口规则"
         firewall-cmd --zone=public --add-port=80/tcp --permanent
