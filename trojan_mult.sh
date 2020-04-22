@@ -87,7 +87,8 @@ EOF
 	~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
-        --fullchain-file /usr/src/trojan-cert/fullchain.cer
+        --fullchain-file /usr/src/trojan-cert/fullchain.cer \
+	--reloadcmd  "systemctl restart trojan"
 	if test -s /usr/src/trojan-cert/fullchain.cer; then
 	systemctl start nginx
         cd /usr/src
@@ -209,10 +210,6 @@ EOF
 	chmod +x ${systempwd}trojan.service
 	systemctl start trojan.service
 	systemctl enable trojan.service
-	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
-        --key-file   /usr/src/trojan-cert/private.key \
-        --fullchain-file /usr/src/trojan-cert/fullchain.cer \
-	--reloadcmd  "systemctl restart trojan"
 	green "======================================================================"
 	green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
 	green "1、复制下面的链接，在浏览器打开，下载客户端，注意此下载链接将在1个小时后失效"
