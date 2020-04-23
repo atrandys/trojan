@@ -100,7 +100,6 @@ EOF
 	wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip >/dev/null 2>&1
 	unzip trojan-cli.zip >/dev/null 2>&1
 	unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
-	cp /usr/src/trojan-cert/fullchain.cer /usr/src/trojan-cli/fullchain.cer
 	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
 	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
 	cat > /usr/src/trojan-cli/config.json <<-EOF
@@ -117,7 +116,7 @@ EOF
     "ssl": {
         "verify": true,
         "verify_hostname": true,
-        "cert": "fullchain.cer",
+        "cert": "",
         "cipher_tls13":"TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384",
 	"sni": "",
         "alpn": [
