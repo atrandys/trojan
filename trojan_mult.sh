@@ -38,7 +38,7 @@ elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
     release="centos"
     systemPackage="yum"
 fi
-systempwd="/etc/systemc/system/"
+systempwd="/etc/systemd/system/"
 
 #install & config trojan
 function install_trojan(){
@@ -205,11 +205,11 @@ WantedBy=multi-user.target
 EOF
 
 	chmod +x ${systempwd}trojan.service
+	systemctl enable trojan.service
 	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
         --fullchain-file /usr/src/trojan-cert/fullchain.cer \
-	--reloadcmd  "systemctl restart trojan"
-	systemctl enable trojan.service
+	--reloadcmd  "systemctl restart trojan"	
 	green "======================================================================"
 	green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
 	green "1、复制下面的链接，在浏览器打开，下载客户端，注意此下载链接将在1个小时后失效"
