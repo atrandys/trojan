@@ -66,10 +66,16 @@ http {
     client_max_body_size 20m;
     #gzip  on;
     server {
-        listen       80;
+        listen  127.0.0.1:80;
         server_name  $your_domain;
         root /usr/share/nginx/html;
         index index.php index.html index.htm;
+    }
+    server {
+        listen  0.0.0.0:80;
+        listen  [::]:80;
+        server_name  _;
+        return  301 https://$host$request_uri;
     }
 }
 EOF
