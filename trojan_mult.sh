@@ -75,7 +75,7 @@ http {
         listen  0.0.0.0:80;
         listen  [::]:80;
         server_name  _;
-        return  301 https://$host$request_uri;
+        return  301 https://$your_domain\$request_uri;
     }
 }
 EOF
