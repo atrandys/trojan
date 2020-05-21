@@ -229,9 +229,7 @@ start_menu(){
     green " ===================================="
     green " 介绍：一键安装trojan      "
     green " 系统：>=centos7                       "
-    green " 作者：atrandys                      "
-    green " 网站：www.atrandys.com              "
-    green " Youtube：atrandys                   "
+    green " 作者：A                      "
     green " ===================================="
     echo
     green " 1. 安装trojan"
