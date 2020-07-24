@@ -66,10 +66,16 @@ http {
     client_max_body_size 20m;
     #gzip  on;
     server {
-        listen       80;
+        listen  127.0.0.1:80;
         server_name  $your_domain;
         root /usr/share/nginx/html;
         index index.php index.html index.htm;
+    }
+    server {
+        listen  0.0.0.0:80;
+        listen  [::]:80;
+        server_name  _;
+        return  301 https://\$host\$request_uri;
     }
 }
 EOF
@@ -85,8 +91,8 @@ EOF
 	fi
 	mkdir /usr/src/trojan-cert /usr/src/trojan-temp
 	curl https://get.acme.sh | sh
-	~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone
-	if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
+	~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone --keylength ec-256
+	if test -s /root/.acme.sh/${your_domain}_ecc/fullchain.cer; then
 	systemctl start nginx
         cd /usr/src
 	#wget https://github.com/trojan-gfw/trojan/releases/download/v1.13.0/trojan-1.13.0-linux-amd64.tar.xz
@@ -206,7 +212,7 @@ EOF
 	chmod +x ${systempwd}trojan.service
 	systemctl enable trojan.service
 	cd /root
-	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
+	~/.acme.sh/acme.sh  --installcert --ecc -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
         --fullchain-file  /usr/src/trojan-cert/fullchain.cer \
 	--reloadcmd  "systemctl restart trojan"	
@@ -358,8 +364,8 @@ read your_domain
 real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
 local_addr=`curl ipv4.icanhazip.com`
 if [ $real_addr == $local_addr ] ; then
-    ~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone
-    ~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
+    ~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone  --keylength ec-256
+    ~/.acme.sh/acme.sh  --installcert --ecc -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
         --fullchain-file /usr/src/trojan-cert/fullchain.cer \
 	--reloadcmd  "systemctl restart trojan"
