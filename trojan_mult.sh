@@ -1,8 +1,4 @@
 #!/bin/bash
-#
-#Author: atrandys
-#
-#
 function blue(){
     echo -e "\033[34m\033[01m$1\033[0m"
 }
@@ -66,11 +62,17 @@ http {
     client_max_body_size 20m;
     #gzip  on;
     server {
-        listen       80;
+        listen       127.0.0.1:80;
         server_name  $your_domain;
         root /usr/share/nginx/html;
         index index.php index.html index.htm;
     }
+    server {
+        listen       0.0.0.0:80;
+        server_name  $your_domain;
+        return 301 https://$your_domain\$request_uri;
+    }
+    
 }
 EOF
 	#设置伪装站
@@ -100,8 +102,10 @@ EOF
 	wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip >/dev/null 2>&1
 	unzip trojan-cli.zip >/dev/null 2>&1
 	unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
-	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/ 
-	trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
+	mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/
+	green "请设置trojan密码，建议不要出现特殊字符"
+	read -p "请输入密码 :" trojan_passwd
+	#trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
 	cat > /usr/src/trojan-cli/config.json <<-EOF
 {
     "run_type": "client",
@@ -255,8 +259,8 @@ if [ -f "/etc/selinux/config" ]; then
     if [ "$CHECK" != "SELINUX=disabled" ]; then
         green "检测到SELinux开启状态，添加放行80/443端口规则"
         yum install -y policycoreutils-python >/dev/null 2>&1
-        semanage port -m -t http_port_t -p tcp 80
-        semanage port -m -t http_port_t -p tcp 443
+        semanage port -a -t http_port_t -p tcp 80
+        semanage port -a -t http_port_t -p tcp 443
     fi
 fi
 if [ "$release" == "centos" ]; then
@@ -365,7 +369,6 @@ if [ $real_addr == $local_addr ] ; then
 	--reloadcmd  "systemctl restart trojan"
     if test -s /usr/src/trojan-cert/fullchain.cer; then
         green "证书申请成功"
-	green "请将/usr/src/trojan-cert/下的fullchain.cer下载放到客户端trojan-cli文件夹"
 	systemctl restart trojan
 	systemctl start nginx
     else
