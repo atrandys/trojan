@@ -408,7 +408,7 @@ function update_trojan(){
         cd .. && rm -rf trojan_update_temp
         systemctl restart trojan
 	/usr/src/trojan/trojan -v 2>trojan.tmp
-	green "trojan升级完成，当前版本：`cat trojan.tmp | grep "trojan" | awk '{print $4}'`"
+	green "服务端trojan升级完成，当前版本：`cat trojan.tmp | grep "trojan" | awk '{print $4}'`，客户端请在trojan github下载最新版"
 	rm -f trojan.tmp
     else
         green "当前版本$curr_version,最新版本$latest_version,无需升级"
@@ -420,13 +420,13 @@ function update_trojan(){
 start_menu(){
     clear
     green " ======================================="
-    green " 介绍：一键安装trojan      "
-    green " 系统：centos7+/debian9+/ubuntu16.04+"
-    green " 作者：A              "
-    blue " 声明："
-    red " *请不要在任何生产环境使用此脚本"
-    red " *请不要有其他程序占用80和443端口"
-    red " *若是第二次使用脚本，请先执行卸载trojan"
+    green " 介绍: 一键安装trojan      "
+    green " 系统: centos7+/debian9+/ubuntu16.04+"
+    green " 作者: A             "
+    blue " 注意:"
+    red " *1. 不要在任何生产环境使用此脚本"
+    red " *2. 不要占用80和443端口"
+    red " *3. 若第二次使用脚本，请先执行卸载trojan"
     green " ======================================="
     echo
     green " 1. 安装trojan"
