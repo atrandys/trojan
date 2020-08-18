@@ -296,6 +296,7 @@ function preinstall_check(){
         if [ -n "$ufw_status" ]; then
             ufw allow 80/tcp
             ufw allow 443/tcp
+	    ufw reload
         fi
         apt-get update
     elif [ "$release" == "debian" ]; then
@@ -303,6 +304,7 @@ function preinstall_check(){
         if [ -n "$ufw_status" ]; then
             ufw allow 80/tcp
             ufw allow 443/tcp
+	    ufw reload
         fi
         apt-get update
     fi
