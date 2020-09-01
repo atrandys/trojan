@@ -440,7 +440,10 @@ function remove_trojan(){
     if [ "$release" == "centos" ]; then
         yum remove -y nginx
     else
-        apt-get autoremove -y --purge nginx nginx-common nginx-core && rm -rf /var/www/html
+        apt-get -y autoremove nginx
+        apt-get -y --purge remove nginx
+        apt-get -y autoremove && apt-get -y autoclean
+        find / | grep nginx | sudo xargs rm -rf
     fi
     rm -rf /usr/src/trojan/
     rm -rf /usr/src/trojan-cli/
