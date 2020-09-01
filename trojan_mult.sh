@@ -29,6 +29,10 @@ systempwd="/etc/systemd/system/"
 
 function install_trojan(){
     $systemPackage install -y nginx
+    if [ ! -d "/etc/nginx/" ]; then
+        red "nginx安装有问题，请使用卸载trojan后重新安装"
+        exit 1
+    fi
     cat > /etc/nginx/nginx.conf <<-EOF
 user  root;
 worker_processes  1;
