@@ -254,21 +254,21 @@ RestartSec=1s
 WantedBy=multi-user.target
 EOF
 
-    chmod +x ${systempwd}trojan.service
-    systemctl enable trojan.service
-    cd /root
-    ~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
-        --key-file   /usr/src/trojan-cert/$your_domain/private.key \
-        --fullchain-file  /usr/src/trojan-cert/$your_domain/fullchain.cer \
-        --reloadcmd  "systemctl restart trojan"	
-    green "=========================================================================="
-    green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
-    blue "http://${your_domain}/$trojan_path/trojan-cli.zip"
-    green "=========================================================================="
-    green "                          客户端配置文件"
-    green "=========================================================================="
-    cat /usr/src/trojan-cli/config.json
-    green "=========================================================================="
+        chmod +x ${systempwd}trojan.service
+        systemctl enable trojan.service
+        cd /root
+        ~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
+            --key-file   /usr/src/trojan-cert/$your_domain/private.key \
+            --fullchain-file  /usr/src/trojan-cert/$your_domain/fullchain.cer \
+            --reloadcmd  "systemctl restart trojan"	
+        green "=========================================================================="
+        green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
+        blue "http://${your_domain}/$trojan_path/trojan-cli.zip"
+        green "=========================================================================="
+        green "                          客户端配置文件"
+        green "=========================================================================="
+        cat /usr/src/trojan-cli/config.json
+        green "=========================================================================="
     else
         red "==================================="
         red "https证书没有申请成功，本次安装失败"
