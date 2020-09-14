@@ -203,11 +203,11 @@ http {
 EOF
     systemctl restart nginx
     sleep 3
-    rm -rf /usr/share/nginx/html/*
-    cd /usr/share/nginx/html/
-    wget https://github.com/atrandys/trojan/raw/master/fakesite.zip >/dev/null 2>&1
-    unzip fakesite.zip >/dev/null 2>&1
-    sleep 5
+    #rm -rf /usr/share/nginx/html/*
+    #cd /usr/share/nginx/html/
+    #wget https://github.com/atrandys/trojan/raw/master/fakesite.zip >/dev/null 2>&1
+    #unzip fakesite.zip >/dev/null 2>&1
+    #sleep 5
     if [ ! -d "/usr/src" ]; then
         mkdir /usr/src
     fi
