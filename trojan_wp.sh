@@ -497,17 +497,7 @@ function preinstall_check(){
 }
 
 function repair_cert(){
-    systemctl stop nginx
-    iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-    iptables -I INPUT -p tcp --dport 443 -j ACCEPT
-    Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
-    if [ -n "$Port80" ]; then
-        process80=`netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'`
-        red "==========================================================="
-        red "检测到80端口被占用，占用进程为：${process80}，本次安装结束"
-        red "==========================================================="
-        exit 1
-    fi
+    #systemctl stop nginx
     green "============================"
     blue "请输入绑定到本VPS的域名"
     blue "务必与之前失败使用的域名一致"
@@ -516,7 +506,7 @@ function repair_cert(){
     real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
     local_addr=`curl ipv4.icanhazip.com`
     if [ $real_addr == $local_addr ] ; then
-        ~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone
+        ~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
         ~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
             --key-file   /usr/src/trojan-cert/$your_domain/private.key \
             --fullchain-file /usr/src/trojan-cert/$your_domain/fullchain.cer \
@@ -537,10 +527,9 @@ function repair_cert(){
 }
 
 function remove_trojan(){
-    red "================================"
-    red "即将卸载trojan"
-    red "同时卸载安装的nginx"
-    red "================================"
+    red "=================================================="
+    red "你的trojan+wordpress数据将全部丢失！！你确定要卸载吗？"
+    read -s -n1 -p "按回车键开始卸载，按ctrl+c取消"
     systemctl stop trojan
     systemctl disable trojan
     systemctl stop nginx
@@ -559,9 +548,13 @@ function remove_trojan(){
     rm -rf /usr/share/nginx/html/*
     rm -rf /etc/nginx/
     rm -rf /root/.acme.sh/
-    green "=============="
-    green "trojan删除完毕"
-    green "=============="
+    yum remove -y php74 php74-php-gd  php74-php-pdo php74-php-mbstring php74-php-cli php74-php-fpm php74-php-mysqlnd mysql
+    rm -rf /var/lib/mysql	
+    rm -rf /usr/lib64/mysql
+    rm -rf /usr/share/mysql
+    green "========================"
+    green "trojan+wordpress删除完毕"
+    green "========================"
 }
 
 function update_trojan(){
