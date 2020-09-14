@@ -151,8 +151,8 @@ EOF
         green "开始下载并处理trojan windows客户端"
         wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
         wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
-        unzip trojan-cli.zip >/dev/null 2>&1
-        unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
+        unzip -o trojan-cli.zip >/dev/null 2>&1
+        unzip -o /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
         mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/
         green "请设置trojan密码，建议不要出现特殊字符"
         read -p "请输入密码 :" trojan_passwd
