@@ -448,7 +448,7 @@ function preinstall_check(){
             semanage port -a -t http_port_t -p tcp 443
         fi
     fi
-    if [[ "$release" == "centos" ]] && [[ "$VERSION" == "7" ]]; then
+    if [[ "$RELEASE" == "centos" ]] && [[ "$VERSION" == "7" ]]; then
         firewall_status=`systemctl status firewalld | grep "Active: active"`
         if [ -n "$firewall_status" ]; then
             green "检测到firewalld开启状态，添加放行80/443端口规则"
@@ -545,7 +545,7 @@ function remove_trojan(){
     systemctl stop nginx
     systemctl disable nginx
     rm -f /etc/systemd/system/trojan.service
-    if [ "$release" == "centos" ]; then
+    if [ "$RELEASE" == "centos" ]; then
         yum remove -y nginx
     else
         apt-get -y autoremove nginx
