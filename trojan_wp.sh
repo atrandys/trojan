@@ -139,7 +139,8 @@ EOT
     mv /usr/share/wordpresstemp/latest-zh_CN.zip ./
     unzip latest-zh_CN.zip >/dev/null 2>&1
     mv wordpress/* ./
-    cp wp-config-sample.php wp-config.php
+    #cp wp-config-sample.php wp-config.php
+    wget https://raw.githubusercontent.com/atrandys/trojan/master/wp-config.php
     green "===================="
     green "  7.配置wordpress"
     green "===================="
@@ -147,7 +148,7 @@ EOT
     echo
     sleep 1
     sed -i "s/database_name_here/wordpress_db/;s/username_here/root/;s?password_here?$mysqlpasswd?;" /usr/share/nginx/html/wp-config.php
-    echo "define('FS_METHOD', "direct");" >> /usr/share/nginx/html/wp-config.php
+    #echo "define('FS_METHOD', "direct");" >> /usr/share/nginx/html/wp-config.php
     chown -R apache:apache /usr/share/nginx/html/
     #chmod 775 apache:apache /usr/share/nginx/html/ -Rf
     chmod -R 775 /usr/share/nginx/html/wp-content
