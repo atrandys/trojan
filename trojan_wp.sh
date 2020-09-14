@@ -476,6 +476,7 @@ function preinstall_check(){
         green "=========================================="
         sleep 1s
         install_trojan
+        install_wordpress
     else
         red "===================================="
         red "域名解析地址与本VPS IP地址不一致"
@@ -487,6 +488,7 @@ function preinstall_check(){
             green "强制继续运行脚本"
             sleep 1s
             install_trojan
+            install_wordpress
         else
             exit 1
         fi
