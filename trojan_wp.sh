@@ -214,7 +214,7 @@ EOF
     if [ ! -d "/usr/src/trojan-cert" ]; then
         mkdir /usr/src/trojan-cert /usr/src/trojan-temp
         mkdir /usr/src/trojan-cert/$your_domain
-        if [ ! -d /usr/src/trojan-cert/$your_domain ]; then
+        if [ ! -d "/usr/src/trojan-cert/$your_domain" ]; then
             red "不存在/usr/src/trojan-cert/$your_domain目录"
             exit 1
         fi
@@ -239,6 +239,7 @@ EOF
             cert_success="1"
         fi        
     else 
+        mkdir /usr/src/trojan-cert/$your_domain
         curl https://get.acme.sh | sh
         ~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
         if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
@@ -501,7 +502,7 @@ function preinstall_check(){
 }
 
 function repair_cert(){
-    #systemctl stop nginx
+    systemctl stop nginx
     green "============================"
     blue "请输入绑定到本VPS的域名"
     blue "务必与之前失败使用的域名一致"
@@ -510,7 +511,7 @@ function repair_cert(){
     real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
     local_addr=`curl ipv4.icanhazip.com`
     if [ $real_addr == $local_addr ] ; then
-        ~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
+        ~/.acme.sh/acme.sh  --issue  -d $your_domain  --standalone
         ~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
             --key-file   /usr/src/trojan-cert/$your_domain/private.key \
             --fullchain-file /usr/src/trojan-cert/$your_domain/fullchain.cer \
