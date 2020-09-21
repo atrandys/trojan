@@ -103,7 +103,7 @@ function install_wordpress(){
     green "==============="
     sleep 2
     originpasswd=`cat /var/log/mysqld.log | grep password | head -1 | rev  | cut -d ' ' -f 1 | rev`
-    mysqlpasswd=`mkpasswd -l 18 -d 2 -c 3 -C 4 -s 5 | sed $'s/[\'\/\;\"\:\.\?]//g'`
+    mysqlpasswd=`mkpasswd -l 18 -d 2 -c 3 -C 4 -s 5 | sed $'s/[\'\/\;\"\:\.\?\&]//g'`
 cat > ~/.my.cnf <<EOT
 [mysql]
 user=root
@@ -214,6 +214,10 @@ EOF
     if [ ! -d "/usr/src/trojan-cert" ]; then
         mkdir /usr/src/trojan-cert /usr/src/trojan-temp
         mkdir /usr/src/trojan-cert/$your_domain
+        if [ ! -d /usr/src/trojan-cert/$your_domain ]; then
+            red "不存在/usr/src/trojan-cert/$your_domain目录"
+            exit 1
+        fi
         curl https://get.acme.sh | sh
         ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
         if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
