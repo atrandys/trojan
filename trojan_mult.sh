@@ -74,7 +74,7 @@ EOF
     if [ ! -d "/usr/src/trojan-cert" ]; then
         mkdir /usr/src/trojan-cert /usr/src/trojan-temp
         mkdir /usr/src/trojan-cert/$your_domain
-        if [ ! -d /usr/src/trojan-cert/$your_domain ]; then
+        if [ ! -d "/usr/src/trojan-cert/$your_domain" ]; then
             red "不存在/usr/src/trojan-cert/$your_domain目录"
             exit 1
         fi
@@ -99,6 +99,7 @@ EOF
             cert_success="1"
         fi        
     else 
+        mkdir /usr/src/trojan-cert/$your_domain
         curl https://get.acme.sh | sh
         ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
         if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
@@ -397,8 +398,8 @@ function preinstall_check(){
 
 function repair_cert(){
     systemctl stop nginx
-    iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-    iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+    #iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+    #iptables -I INPUT -p tcp --dport 443 -j ACCEPT
     Port80=`netstat -tlpn | awk -F '[: ]+' '$1=="tcp"{print $5}' | grep -w 80`
     if [ -n "$Port80" ]; then
         process80=`netstat -tlpn | awk -F '[: ]+' '$5=="80"{print $9}'`
