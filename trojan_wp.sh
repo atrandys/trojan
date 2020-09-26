@@ -392,11 +392,12 @@ EOF
 EOF
         cd /usr/src/trojan-cli/
         zip -q -r trojan-cli.zip /usr/src/trojan-cli/
-        rm -rf /usr/src/trojan-temp/
+        rm -rf /usr/src/trojan-temp
         rm -f /usr/src/trojan-cli.zip
         trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
         mkdir /usr/share/nginx/html/${trojan_path}
         mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/	
+        rm -f /usr/src/trojan-cli.zip
         cat > /etc/systemd/system/trojan.service <<-EOF
 [Unit]  
 Description=trojan  
