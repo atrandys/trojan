@@ -59,6 +59,12 @@ function install_wordpress(){
     sleep 1
     wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     wget https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    if [ (-f "epel-release-latest-7.noarch.rpm") -a (-f "remi-release-7.rpm") ]; then
+        green "下载软件源成功"
+    else
+        red "下载软件源失败，退出安装"
+        exit 1
+    fi
     rpm -Uvh remi-release-7.rpm epel-release-latest-7.noarch.rpm
     #sed -i "0,/enabled=0/s//enabled=1/" /etc/yum.repos.d/epel.repo
     yum -y install  unzip vim tcl expect curl socat
