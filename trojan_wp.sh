@@ -65,7 +65,7 @@ function install_wordpress(){
         red "下载软件源失败，退出安装"
         exit 1
     fi
-    rpm -Uvh remi-release-7.rpm epel-release-latest-7.noarch.rpm
+    rpm -Uvh remi-release-7.rpm epel-release-latest-7.noarch.rpm --force --nodeps
     #sed -i "0,/enabled=0/s//enabled=1/" /etc/yum.repos.d/epel.repo
     yum -y install  unzip vim tcl expect curl socat
     echo
