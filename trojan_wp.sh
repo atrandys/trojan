@@ -57,6 +57,7 @@ function install_wordpress(){
     green " 1.安装必要软件"
     green "==============="
     sleep 1
+    green ""
     wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     wget https://rpms.remirepo.net/enterprise/remi-release-7.rpm
     if [ -f "epel-release-latest-7.noarch.rpm" -a -f "remi-release-7.rpm" ]; then
@@ -91,7 +92,7 @@ function install_wordpress(){
     sleep 1
     #wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
     wget https://repo.mysql.com/mysql80-community-release-el7-3.noarch.rpm
-    rpm -ivh mysql80-community-release-el7-3.noarch.rpm
+    rpm -ivh mysql80-community-release-el7-3.noarch.rpm --force --nodeps
     yum -y install mysql-server
     systemctl enable mysqld.service
     systemctl start  mysqld.service
@@ -469,7 +470,7 @@ function preinstall_check(){
             firewall-cmd --zone=public --add-port=443/tcp --permanent
             firewall-cmd --reload
         fi
-        rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+        rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm --force --nodeps
     else
             red "==============="
             red "当前系统不受支持"
