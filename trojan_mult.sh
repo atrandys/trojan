@@ -336,7 +336,7 @@ function preinstall_check(){
             firewall-cmd --zone=public --add-port=443/tcp --permanent
             firewall-cmd --reload
         fi
-        rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+        rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm --force --nodeps
     elif [ "$release" == "ubuntu" ]; then
         if  [ -n "$(grep ' 14\.' /etc/os-release)" ] ;then
         red "==============="
