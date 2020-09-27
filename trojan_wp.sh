@@ -165,12 +165,12 @@ EOT
     green "=========================================================================="
     echo
     green "=========================================================================="
-    green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
-    blue "http://${your_domain}/$trojan_path/trojan-cli.zip"
+    green "Trojan已安装完成，请自行下载trojan客户端，使用以下的参数或配置文件"
+    green "服务器地址：$your_domain"
+    green "端口：443"
+    green "trojan密码：$trojan_passwd"
     green "=========================================================================="
-    green "                          客户端配置文件"
-    green "=========================================================================="
-    cat /usr/src/trojan-cli/config.json
+    cat /usr/src/trojan/config.json
     green "=========================================================================="
 }
 
@@ -220,7 +220,7 @@ EOF
         mkdir /usr/src
     fi
     if [ ! -d "/usr/src/trojan-cert" ]; then
-        mkdir /usr/src/trojan-cert /usr/src/trojan-temp
+        mkdir /usr/src/trojan-cert 
         mkdir /usr/src/trojan-cert/$your_domain
         if [ ! -d "/usr/src/trojan-cert/$your_domain" ]; then
             red "不存在/usr/src/trojan-cert/$your_domain目录"
@@ -312,16 +312,16 @@ EOF
         tar xf trojan-${latest_version}-linux-amd64.tar.xz >/dev/null 2>&1
         rm -f trojan-${latest_version}-linux-amd64.tar.xz
         #下载trojan客户端
-        green "开始下载并处理trojan windows客户端"
-        wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
-        wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
-        unzip trojan-cli.zip >/dev/null 2>&1
-        unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
-        mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/
+        #green "开始下载并处理trojan windows客户端"
+        #wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
+        #wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
+        #unzip trojan-cli.zip >/dev/null 2>&1
+        #unzip /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
+        #mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/
         green "请设置trojan密码，建议不要出现特殊字符"
         read -p "请输入密码 :" trojan_passwd
         #trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
-        cat > /usr/src/trojan-cli/config.json <<-EOF
+        cat > /usr/src/trojan/config.json <<-EOF
 {
     "run_type": "client",
     "local_addr": "127.0.0.1",
@@ -398,14 +398,14 @@ EOF
     }
 }
 EOF
-        cd /usr/src/trojan-cli/
-        zip -q -r trojan-cli.zip /usr/src/trojan-cli/
-        rm -rf /usr/src/trojan-temp
-        rm -f /usr/src/trojan-cli.zip
-        trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
-        mkdir /usr/share/nginx/html/${trojan_path}
-        mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/	
-        rm -f /usr/src/trojan-cli.zip
+        #cd /usr/src/trojan-cli/
+        #zip -q -r trojan-cli.zip /usr/src/trojan-cli/
+        #rm -rf /usr/src/trojan-temp
+        #rm -f /usr/src/trojan-cli.zip
+        #trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
+        #mkdir /usr/share/nginx/html/${trojan_path}
+        #mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/	
+        #rm -f /usr/src/trojan-cli.zip
         cat > /etc/systemd/system/trojan.service <<-EOF
 [Unit]  
 Description=trojan  
