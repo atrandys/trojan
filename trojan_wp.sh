@@ -597,13 +597,12 @@ function update_trojan(){
 start_menu(){
     clear
     green " ======================================="
-    green " 介绍: 一键安装trojan + wordpress      "
-    green " 系统: centos7+/debian9+/ubuntu16.04+"
-    green " 作者: A             "
-    blue " 注意:"
+    green " 脚本功用: 一键安装trojan + wordpress      "
+    green " 系统支持: centos7"
+    green " 脚本作者: atrandys             "
     red " *1. 不要在任何生产环境使用此脚本"
     red " *2. 不要占用80和443端口"
-    red " *3. 若第二次使用脚本，请先执行卸载trojan"
+    red " *3. 若第一次使用脚本失败，请先执行卸载trojan"
     green " ======================================="
     echo
     green " 1. 安装trojan + wp"
