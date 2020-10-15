@@ -244,8 +244,8 @@ EOF
         rm -rf /usr/src/trojan-temp/
         rm -f /usr/src/trojan-cli.zip
         trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
-        mkdir /usr/share/nginx/html/${trojan_path}
-        mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/	
+        #mkdir /usr/share/nginx/html/${trojan_path}
+        #mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/	
         cat > ${systempwd}trojan.service <<-EOF
 [Unit]  
 Description=trojan  
@@ -270,14 +270,15 @@ EOF
             --key-file   /usr/src/trojan-cert/$your_domain/private.key \
             --fullchain-file  /usr/src/trojan-cert/$your_domain/fullchain.cer \
             --reloadcmd  "systemctl restart trojan"	
-        green "=========================================================================="
-        green "Trojan已安装完成，请使用以下链接下载trojan客户端，此客户端已配置好所有参数"
-        blue "http://${your_domain}/$trojan_path/trojan-cli.zip"
-        green "=========================================================================="
+        green "==========================================================================="
+        green "windows客户端路径/usr/src/trojan-cli/trojan-cli.zip，此客户端已配置好所有参数"
+        green "==========================================================================="
+        echo
+        echo
         green "                          客户端配置文件"
-        green "=========================================================================="
+        green "==========================================================================="
         cat /usr/src/trojan-cli/config.json
-        green "=========================================================================="
+        green "==========================================================================="
     else
         red "==================================="
         red "https证书没有申请成功，本次安装失败"
