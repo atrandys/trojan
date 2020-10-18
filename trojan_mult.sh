@@ -310,11 +310,21 @@ function preinstall_check(){
     fi
     if [ -f "/etc/selinux/config" ]; then
         CHECK=$(grep SELINUX= /etc/selinux/config | grep -v "#")
-        if [ "$CHECK" != "SELINUX=disabled" ]; then
-            green "检测到SELinux开启状态，添加放行80/443端口规则"
-            yum install -y policycoreutils-python >/dev/null 2>&1
-            semanage port -a -t http_port_t -p tcp 80
-            semanage port -a -t http_port_t -p tcp 443
+        if [ "$CHECK" == "SELINUX=enforcing" ]; then
+            green "$(date +"%Y-%m-%d %H:%M:%S") - SELinux状态非disabled,关闭SELinux."
+            setenforce 0
+            sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+            #loggreen "SELinux is not disabled, add port 80/443 to SELinux rules."
+            #loggreen "==== Install semanage"
+            #logcmd "yum install -y policycoreutils-python"
+            #semanage port -a -t http_port_t -p tcp 80
+            #semanage port -a -t http_port_t -p tcp 443
+            #semanage port -a -t http_port_t -p tcp 37212
+            #semanage port -a -t http_port_t -p tcp 37213
+        elif [ "$CHECK" == "SELINUX=permissive" ]; then
+            green "$(date +"%Y-%m-%d %H:%M:%S") - SELinux状态非disabled,关闭SELinux."
+            setenforce 0
+            sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
         fi
     fi
     if [ "$release" == "centos" ]; then
