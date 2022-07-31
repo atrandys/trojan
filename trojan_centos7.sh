@@ -46,6 +46,10 @@ if [ "$CHECK" == "SELINUX=permissive" ]; then
 fi
 yum -y install bind-utils wget unzip zip curl tar
 green "======================="
+yellow "请输入申请https证书的邮箱"
+green "======================="
+read your_email
+green "======================="
 yellow "请输入绑定到本VPS的域名"
 green "======================="
 read your_domain
@@ -67,7 +71,7 @@ if [ $real_addr == $local_addr ] ; then
 	systemctl restart nginx.service
 	#申请https证书
 	mkdir /usr/src/trojan-cert
-	curl https://get.acme.sh | sh
+	curl https://get.acme.sh | sh -e $your_email
 	~/.acme.sh/acme.sh  --issue  -d $your_domain  --webroot /usr/share/nginx/html/
     	~/.acme.sh/acme.sh  --installcert  -d  $your_domain   \
         --key-file   /usr/src/trojan-cert/private.key \
